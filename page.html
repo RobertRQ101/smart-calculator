@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bankme Style - Credit Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .progress-bar { transition: width 0.5s ease-in-out; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 pb-10">
+
+    <nav class="p-4 bg-white shadow-sm border-b no-print sticky top-0 z-50">
+        <div class="flex justify-between items-center max-w-4xl mx-auto">
+            <span class="text-xl font-bold text-indigo-600">SmartLoan <span class="text-slate-400 font-light">Pro</span></span>
+            <div class="flex gap-2">
+                <button onclick="limparTudo()" class="text-xs text-red-500 font-bold px-3 py-2">Limpar</button>
+                <button onclick="window.print()" class="text-xs bg-slate-800 text-white px-4 py-2 rounded-lg font-bold">PDF</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="p-4 max-w-4xl mx-auto space-y-6">
+        
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+            <div class="flex justify-between items-end mb-2">
+                <div>
+                    <p class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Progresso da Quitação</p>
+                    <h2 id="progressoTexto" class="text-2xl font-bold text-slate-900">0%</h2>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Restante</p>
+                    <p id="restanteTexto" class="font-bold text-indigo-600">R$ 0,00</p>
+                </div>
+            </div>
+            <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                <div id="progressBar" class="progress-bar bg-indigo-600 h-full w-0"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-indigo-600 p-5 rounded-2xl text-white shadow-lg">
+                <p class="text-[9px] uppercase opacity-70 font-bold">Lucro em Juros</p>
+                <h2 id="totalJuros" class="text-xl font-bold">R$ 0,00</h2>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200">
+                <p class="text-[9px] uppercase text-slate-400 font-bold">Total Recebido</p>
+                <h2 id="totalRecebido" class="text-xl font-bold text-emerald-600">R$ 0,00</h2>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm no-print grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="col-span-2 md:col-span-1">
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Empréstimo (R$)</label>
+                <input type="number" id="capital" value="5000" oninput="saveAndRender()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg">
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Juros (%)</label>
+                <input type="number" id="taxa" value="3.2" step="0.1" oninput="saveAndRender()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg text-indigo-600">
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Prazo (Meses)</label>
+                <input type="number" id="prazo" value="12" oninput="saveAndRender()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg">
+            </div>
+            <div class="col-span-2 md:col-span-1">
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Data Início</label>
+                <input type="date" id="dataInicio" value="2026-03-07" oninput="saveAndRender()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold">
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50 text-slate-400 uppercase text-[9px] tracking-widest">
+                        <tr>
+                            <th class="p-4">Vencimento</th>
+                            <th class="p-4 text-center">Pagamento</th>
+                            <th class="p-4 text-right">Saldo Devedor</th>
+                            <th class="p-4 text-center no-print">Pago?</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaCorpo" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <button onclick="enviarWhatsApp()" class="no-print w-full bg-emerald-500 text-white p-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg active:scale-95 transition">
+            💬 Enviar Status via WhatsApp
+        </button>
+    </main>
+
+    <script>
+        let config = JSON.parse(localStorage.getItem('smartLoanConfig')) || {
+            pagamentos: {},
+            status: {}
+        };
+
+        function calcularPMT(p, i, n) {
+            if (i <= 0) return p / n;
+            return (p * (i * Math.pow(1 + i, n))) / (Math.pow(1 + i, n) - 1);
+        }
+
+        function saveAndRender() {
+            render();
+            const data = {
+                capital: document.getElementById('capital').value,
+                taxa: document.getElementById('taxa').value,
+                prazo: document.getElementById('prazo').value,
+                dataInicio: document.getElementById('dataInicio').value,
+                pagamentos: config.pagamentos,
+                status: config.status
+            };
+            localStorage.setItem('smartLoanConfig', JSON.stringify(data));
+        }
+
+        function toggleStatus(mes) {
+            config.status[mes] = !config.status[mes];
+            saveAndRender();
+        }
+
+        function updatePagamento(mes, valor) {
+            config.pagamentos[mes] = parseFloat(valor);
+            saveAndRender();
+        }
+
+        function limparTudo() {
+            if(confirm("Deseja resetar todos os dados e pagamentos?")) {
+                localStorage.removeItem('smartLoanConfig');
+                config = { pagamentos: {}, status: {} };
+                location.reload();
+            }
+        }
+
+        function render() {
+            const cap = parseFloat(document.getElementById('capital').value) || 0;
+            const taxa = (parseFloat(document.getElementById('taxa').value) || 0) / 100;
+            const prazo = parseInt(document.getElementById('prazo').value) || 1;
+            const dataI = document.getElementById('dataInicio').value;
+            const pmtBase = calcularPMT(cap, taxa, prazo);
+
+            const corpo = document.getElementById('tabelaCorpo');
+            corpo.innerHTML = '';
+
+            let saldo = cap;
+            let totalJuros = 0;
+            let totalPagoJa = 0;
+            let mes = 1;
+
+            while (saldo > 0.01 && mes <= 60) {
+                let jurosMes = saldo * taxa;
+                let valorPago = config.pagamentos[mes] !== undefined ? config.pagamentos[mes] : pmtBase;
+                
+                // Regra de Abril Automática (apenas se capital for 5000 e não houver edição manual)
+                if (mes === 2 && config.pagamentos[mes] === undefined && cap === 5000) valorPago = pmtBase + 2000;
+                
+                if (valorPago > (saldo + jurosMes)) valorPago = saldo + jurosMes;
+
+                let amort = valorPago - jurosMes;
+                let saldoFinal = saldo - amort;
+                totalJuros += jurosMes;
+
+                if (config.status[mes]) totalPagoJa += valorPago;
+
+                const dataVenc = new Date(dataI + 'T12:00:00');
+                dataVenc.setMonth(dataVenc.getMonth() + (mes - 1));
+
+                corpo.innerHTML += `
+                    <tr class="${config.status[mes] ? 'bg-emerald-50/50 opacity-60' : ''} transition-all">
+                        <td class="p-4">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">${mes}ª</span><br>
+                            <span class="font-bold text-slate-700">${dataVenc.toLocaleDateString('pt-BR')}</span>
+                        </td>
+                        <td class="p-4 text-center">
+                            <input type="number" step="0.01" value="${valorPago.toFixed(2)}" onchange="updatePagamento(${mes}, this.value)" 
+                            class="w-24 text-center border rounded-lg p-2 font-bold text-indigo-600 bg-white">
+                        </td>
+                        <td class="p-4 text-right">
+                            <span class="text-[9px] text-slate-400 italic">Juros: R$ ${jurosMes.toFixed(2)}</span><br>
+                            <span class="font-bold text-slate-900">R$ ${Math.max(0, saldoFinal).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
+                        </td>
+                        <td class="p-4 text-center no-print">
+                            <input type="checkbox" ${config.status[mes] ? 'checked' : ''} onchange="toggleStatus(${mes})" class="w-5 h-5 accent-emerald-500 cursor-pointer">
+                        </td>
+                    </tr>`;
+                saldo = saldoFinal;
+                mes++;
+            }
+
+            // Update UI
+            document.getElementById('totalJuros').innerText = `R$ ${totalJuros.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            document.getElementById('totalReceber').innerText = `R$ ${totalPagoJa.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            
+            // Progress Calculation
+            let perc = (totalPagoJa / (cap + totalJuros)) * 100;
+            document.getElementById('progressBar').style.width = `${perc}%`;
+            document.getElementById('progressoTexto').innerText = `${Math.round(perc)}%`;
+            document.getElementById('restanteTexto').innerText = `R$ ${( (cap + totalJuros) - totalPagoJa).toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+        }
+
+        function enviarWhatsApp() {
+            const totalFalta = document.getElementById('restanteTexto').innerText;
+            const texto = `Olá! Segue o status atualizado do empréstimo:\n\n✅ Quitado: ${document.getElementById('progressoTexto').innerText}\n💰 Restante: ${totalFalta}\n\nConfira os detalhes no simulador.`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+        }
+
+        // Carregar dados salvos
+        if(config.capital) document.getElementById('capital').value = config.capital;
+        if(config.taxa) document.getElementById('taxa').value = config.taxa;
+        if(config.prazo) document.getElementById('prazo').value = config.prazo;
+        if(config.dataInicio) document.getElementById('dataInicio').value = config.dataInicio;
+
+        render();
+    </script>
+</body>
+</html>
