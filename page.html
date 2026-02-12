@@ -1,220 +1,692 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bankme Style - Credit Manager</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .progress-bar { transition: width 0.5s ease-in-out; }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        @media print { .no-print { display: none; } }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartLoan v4 — Bankme Style</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    @media print { .no-print { display: none; } }
+  </style>
 </head>
+
 <body class="bg-slate-50 text-slate-800 pb-10">
+  <nav class="p-4 bg-white shadow-sm border-b no-print sticky top-0 z-50">
+    <div class="flex justify-between items-center max-w-5xl mx-auto">
+      <span class="text-xl font-bold text-indigo-600 tracking-tight">
+        SmartLoan <span class="text-slate-400 font-light italic text-sm">v4.0</span>
+      </span>
 
-    <nav class="p-4 bg-white shadow-sm border-b no-print sticky top-0 z-50">
-        <div class="flex justify-between items-center max-w-4xl mx-auto">
-            <span class="text-xl font-bold text-indigo-600">SmartLoan <span class="text-slate-400 font-light">Pro</span></span>
-            <div class="flex gap-2">
-                <button onclick="limparTudo()" class="text-xs text-red-500 font-bold px-3 py-2">Limpar</button>
-                <button onclick="window.print()" class="text-xs bg-slate-800 text-white px-4 py-2 rounded-lg font-bold">PDF</button>
-            </div>
-        </div>
-    </nav>
-
-    <main class="p-4 max-w-4xl mx-auto space-y-6">
-        
-        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-            <div class="flex justify-between items-end mb-2">
-                <div>
-                    <p class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Progresso da Quitação</p>
-                    <h2 id="progressoTexto" class="text-2xl font-bold text-slate-900">0%</h2>
-                </div>
-                <div class="text-right">
-                    <p class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Restante</p>
-                    <p id="restanteTexto" class="font-bold text-indigo-600">R$ 0,00</p>
-                </div>
-            </div>
-            <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                <div id="progressBar" class="progress-bar bg-indigo-600 h-full w-0"></div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-            <div class="bg-indigo-600 p-5 rounded-2xl text-white shadow-lg">
-                <p class="text-[9px] uppercase opacity-70 font-bold">Lucro em Juros</p>
-                <h2 id="totalJuros" class="text-xl font-bold">R$ 0,00</h2>
-            </div>
-            <div class="bg-white p-5 rounded-2xl border border-slate-200">
-                <p class="text-[9px] uppercase text-slate-400 font-bold">Total Recebido</p>
-                <h2 id="totalRecebido" class="text-xl font-bold text-emerald-600">R$ 0,00</h2>
-            </div>
-        </div>
-
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm no-print grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="col-span-2 md:col-span-1">
-                <label class="text-[10px] font-bold text-slate-400 uppercase">Empréstimo (R$)</label>
-                <input type="number" id="capital" value="5000" oninput="saveAndRender()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg">
-            </div>
-            <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase">Juros (%)</label>
-                <input type="number" id="taxa" value="3.2" step="0.1" oninput="saveAndRender()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg text-indigo-600">
-            </div>
-            <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase">Prazo (Meses)</label>
-                <input type="number" id="prazo" value="12" oninput="saveAndRender()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg">
-            </div>
-            <div class="col-span-2 md:col-span-1">
-                <label class="text-[10px] font-bold text-slate-400 uppercase">Data Início</label>
-                <input type="date" id="dataInicio" value="2026-03-07" oninput="saveAndRender()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold">
-            </div>
-        </div>
-
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-slate-50 text-slate-400 uppercase text-[9px] tracking-widest">
-                        <tr>
-                            <th class="p-4">Vencimento</th>
-                            <th class="p-4 text-center">Pagamento</th>
-                            <th class="p-4 text-right">Saldo Devedor</th>
-                            <th class="p-4 text-center no-print">Pago?</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaCorpo" class="divide-y divide-slate-100"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <button onclick="enviarWhatsApp()" class="no-print w-full bg-emerald-500 text-white p-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg active:scale-95 transition">
-            💬 Enviar Status via WhatsApp
+      <div class="flex gap-2 flex-wrap justify-end">
+        <button id="btnReset"
+          class="text-[10px] bg-red-50 text-red-600 font-bold px-3 py-2 rounded-lg border border-red-100 hover:bg-red-200 transition">
+          RESETAR
         </button>
-    </main>
 
-    <script>
-        let config = JSON.parse(localStorage.getItem('smartLoanConfig')) || {
-            pagamentos: {},
-            status: {}
+        <button id="btnExportCSV"
+          class="text-[10px] bg-slate-50 text-slate-800 font-bold px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 transition">
+          Exportar CSV
+        </button>
+
+        <button id="btnExportJSON"
+          class="text-[10px] bg-slate-50 text-slate-800 font-bold px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 transition">
+          Exportar JSON
+        </button>
+
+        <label
+          class="text-[10px] bg-slate-50 text-slate-800 font-bold px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 transition cursor-pointer">
+          Importar JSON
+          <input id="fileImportJSON" type="file" accept="application/json" class="hidden" />
+        </label>
+
+        <button id="btnPrint"
+          class="text-[10px] bg-slate-800 text-white px-4 py-2 rounded-lg font-bold hover:bg-slate-700 transition uppercase">
+          Exportar PDF
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="p-4 max-w-5xl mx-auto space-y-6">
+
+    <!-- DASH -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-indigo-600 p-6 rounded-3xl text-white shadow-xl">
+        <p class="text-[10px] uppercase opacity-70 font-bold tracking-widest">Juros Total</p>
+        <h2 id="kpiJuros" class="text-3xl font-bold">R$ 0,00</h2>
+        <p id="kpiSistema" class="text-[10px] mt-2 opacity-80 font-bold tracking-widest">SISTEMA: PRICE</p>
+      </div>
+
+      <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-center">
+        <p class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Progresso (Pago)</p>
+        <div class="flex items-end gap-2">
+          <h2 id="kpiProgresso" class="text-3xl font-extrabold text-slate-900">0%</h2>
+          <p id="kpiRestante" class="text-xs font-bold text-indigo-600 mb-1">R$ 0,00 restantes</p>
+        </div>
+        <div class="w-full bg-slate-100 h-2 rounded-full mt-3 overflow-hidden">
+          <div id="kpiBar" class="bg-indigo-600 h-full w-0 transition-all duration-500"></div>
+        </div>
+      </div>
+
+      <div class="bg-emerald-50 p-6 rounded-3xl border border-emerald-100 shadow-sm flex flex-col justify-center text-center">
+        <p class="text-[10px] uppercase text-emerald-600 font-bold tracking-widest">Total Recebido</p>
+        <h2 id="kpiRecebido" class="text-3xl font-bold text-emerald-700">R$ 0,00</h2>
+        <p id="kpiPagas" class="text-[10px] mt-2 text-emerald-700 font-bold tracking-widest">0/0 parcelas</p>
+      </div>
+
+      <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-center text-center">
+        <p class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Saldo Devedor (Hoje)</p>
+        <h2 id="kpiSaldo" class="text-3xl font-bold text-slate-900">R$ 0,00</h2>
+        <p class="text-[10px] mt-2 text-slate-400 font-bold tracking-widest">considera pagamentos/extras</p>
+      </div>
+    </div>
+
+    <!-- INPUTS -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm no-print grid grid-cols-2 md:grid-cols-6 gap-4">
+      <div class="md:col-span-1">
+        <label class="text-[10px] font-bold text-slate-400 uppercase">Capital (R$)</label>
+        <input type="number" id="capital" min="0" step="0.01"
+          class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg">
+      </div>
+
+      <div class="md:col-span-1">
+        <label class="text-[10px] font-bold text-slate-400 uppercase">Juros (% am)</label>
+        <input type="number" id="taxa" min="0" step="0.01"
+          class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg text-indigo-600">
+      </div>
+
+      <div class="md:col-span-1">
+        <label class="text-[10px] font-bold text-slate-400 uppercase">Prazo (Meses)</label>
+        <input type="number" id="prazo" min="1" step="1"
+          class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg">
+      </div>
+
+      <div class="md:col-span-1">
+        <label class="text-[10px] font-bold text-slate-400 uppercase">1º Pagamento</label>
+        <input type="date" id="dataInicio"
+          class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold">
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="text-[10px] font-bold text-slate-400 uppercase">Sistema de Amortização</label>
+        <select id="sistema"
+          class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold">
+          <option value="price">PRICE (parcela fixa)</option>
+          <option value="sac">SAC (amortização fixa)</option>
+        </select>
+      </div>
+
+      <div class="md:col-span-6 -mt-1">
+        <p id="warn" class="text-xs font-bold text-amber-700 hidden">⚠️</p>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-4 bg-slate-50/50 border-b border-slate-100 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+        <h3 class="text-xs font-bold text-slate-500 uppercase">Fluxo de Caixa Detalhado</h3>
+        <div class="flex gap-2 items-center">
+          <span id="parcelaInfo" class="text-[10px] font-bold text-indigo-600 px-3 py-1 bg-indigo-50 rounded-full"></span>
+          <span id="extrasInfo" class="text-[10px] font-bold text-emerald-700 px-3 py-1 bg-emerald-50 rounded-full"></span>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead class="bg-slate-50 text-slate-400 uppercase text-[9px] tracking-widest">
+            <tr>
+              <th class="p-4">Vencimento</th>
+              <th class="p-4 text-center">Parcela (R$)</th>
+              <th class="p-4 text-center">Extra (R$)</th>
+              <th class="p-4 text-right">Juros / Saldo</th>
+              <th class="p-4 text-center no-print">Pago?</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaCorpo" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <button id="btnWhats" class="no-print w-full bg-emerald-500 text-white p-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg hover:bg-emerald-600 transition active:scale-95">
+      💬 Compartilhar via WhatsApp
+    </button>
+  </main>
+
+  <script>
+    /***********************
+     * Utils (money/date)
+     ***********************/
+    const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+    const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+
+    function toCents(v) {
+      const n = Number(v);
+      if (!Number.isFinite(n)) return 0;
+      return Math.round(n * 100);
+    }
+    function fromCents(c) {
+      return (c / 100);
+    }
+    function fmt(cents) {
+      return BRL.format(fromCents(cents));
+    }
+
+    // Safe local date: yyyy-mm-dd -> Date(y,m-1,d,12)
+    function parseLocalDate(dateStr) {
+      if (!dateStr) return null;
+      const [y, m, d] = dateStr.split('-').map(Number);
+      if (!y || !m || !d) return null;
+      return new Date(y, m - 1, d, 12, 0, 0);
+    }
+
+    function addMonths(date, months) {
+      const d = new Date(date.getTime());
+      d.setMonth(d.getMonth() + months);
+      return d;
+    }
+
+    function debounce(fn, ms = 250) {
+      let t;
+      return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+      };
+    }
+
+    /***********************
+     * State
+     ***********************/
+    const STORAGE_KEY = 'smartLoanConfig.v4';
+    const DEFAULT_STATE = {
+      version: 4,
+      capitalCents: 5000_00,
+      taxaPctAm: 3.2,
+      prazoMeses: 12,
+      dataInicio: '2026-03-07',
+      sistema: 'price', // 'price' | 'sac'
+      // por mês:
+      statusPago: {},        // { "1": true }
+      parcelaManualCents: {},// { "1": 12345 }  (override apenas da parcela)
+      extraCents: {},        // { "1": 5000 }   (amortização extra)
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(DEFAULT_STATE);
+        const parsed = JSON.parse(raw);
+        // merge resiliente
+        return {
+          ...structuredClone(DEFAULT_STATE),
+          ...parsed,
+          statusPago: parsed.statusPago ?? {},
+          parcelaManualCents: parsed.parcelaManualCents ?? {},
+          extraCents: parsed.extraCents ?? {},
+        };
+      } catch {
+        return structuredClone(DEFAULT_STATE);
+      }
+    }
+
+    let state = loadState();
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    /***********************
+     * Finance
+     ***********************/
+    // PMT em centavos (PRICE)
+    function pmtPriceCents(principalCents, taxaMensal, n) {
+      if (n <= 0) return 0;
+      if (taxaMensal <= 0) return Math.round(principalCents / n);
+      // usa double aqui mas arredonda no final; o resto fica em centavos
+      const P = principalCents / 100;
+      const i = taxaMensal;
+      const pmt = (P * (i * Math.pow(1 + i, n))) / (Math.pow(1 + i, n) - 1);
+      return Math.round(pmt * 100);
+    }
+
+    function buildSchedule() {
+      const capital = state.capitalCents;
+      const taxaMensal = (Number(state.taxaPctAm) || 0) / 100;
+      const prazo = Math.max(1, Number(state.prazoMeses) || 1);
+      const sistema = state.sistema;
+
+      let saldo = capital;
+      const rows = [];
+
+      // SAC: amort fixa
+      const amortSAC = sistema === 'sac' ? Math.floor(capital / prazo) : 0;
+
+      // PRICE: pmt fixa
+      const pmtBase = sistema === 'price' ? pmtPriceCents(capital, taxaMensal, prazo) : 0;
+
+      let jurosTotal = 0;
+      let extraTotal = 0;
+
+      for (let mes = 1; mes <= prazo; mes++) {
+        if (saldo <= 0) break;
+
+        const juros = Math.round((saldo / 100) * taxaMensal * 100); // centavos
+        jurosTotal += juros;
+
+        const extra = clamp(state.extraCents[String(mes)] ?? 0, 0, 1_000_000_000_00);
+        extraTotal += extra;
+
+        let parcelaBase;
+        if (sistema === 'price') {
+          parcelaBase = pmtBase;
+        } else {
+          // SAC: parcela = juros + amort
+          // última parcela: amort pode ser o saldo restante
+          const amort = (mes === prazo) ? saldo : Math.min(amortSAC, saldo);
+          parcelaBase = juros + amort;
+        }
+
+        // override manual da parcela (não mexe no extra)
+        const manual = state.parcelaManualCents[String(mes)];
+        const parcela = (manual !== undefined) ? clamp(manual, 0, 1_000_000_000_00) : parcelaBase;
+
+        // segurança: pagamento total não pode exceder saldo + juros (extra amortiza principal)
+        let totalPago = parcela + extra;
+        const maxTotal = saldo + juros;
+        if (totalPago > maxTotal) {
+          totalPago = maxTotal;
+        }
+
+        // amortização = totalPago - juros
+        const amortizacao = Math.max(0, totalPago - juros);
+        const saldoFinal = Math.max(0, saldo - amortizacao);
+
+        rows.push({
+          mes,
+          juros,
+          parcelaBase,
+          parcela,
+          extra,
+          totalPago,
+          amortizacao,
+          saldoInicial: saldo,
+          saldoFinal,
+          manual: manual !== undefined
+        });
+
+        saldo = saldoFinal;
+      }
+
+      return {
+        rows,
+        jurosTotal,
+        extraTotal,
+        pmtBase,
+        taxaMensal,
+        prazo
+      };
+    }
+
+    /***********************
+     * DOM
+     ***********************/
+    const el = (id) => document.getElementById(id);
+
+    const dom = {
+      capital: el('capital'),
+      taxa: el('taxa'),
+      prazo: el('prazo'),
+      dataInicio: el('dataInicio'),
+      sistema: el('sistema'),
+      warn: el('warn'),
+
+      tabelaCorpo: el('tabelaCorpo'),
+      parcelaInfo: el('parcelaInfo'),
+      extrasInfo: el('extrasInfo'),
+
+      kpiJuros: el('kpiJuros'),
+      kpiRecebido: el('kpiRecebido'),
+      kpiSaldo: el('kpiSaldo'),
+      kpiProgresso: el('kpiProgresso'),
+      kpiRestante: el('kpiRestante'),
+      kpiBar: el('kpiBar'),
+      kpiSistema: el('kpiSistema'),
+      kpiPagas: el('kpiPagas'),
+
+      btnReset: el('btnReset'),
+      btnPrint: el('btnPrint'),
+      btnExportCSV: el('btnExportCSV'),
+      btnExportJSON: el('btnExportJSON'),
+      fileImportJSON: el('fileImportJSON'),
+      btnWhats: el('btnWhats'),
+    };
+
+    function showWarn(msg) {
+      if (!msg) {
+        dom.warn.classList.add('hidden');
+        dom.warn.textContent = '';
+        return;
+      }
+      dom.warn.classList.remove('hidden');
+      dom.warn.textContent = `⚠️ ${msg}`;
+    }
+
+    function hydrateInputs() {
+      dom.capital.value = fromCents(state.capitalCents).toFixed(2);
+      dom.taxa.value = Number(state.taxaPctAm ?? 0);
+      dom.prazo.value = Number(state.prazoMeses ?? 12);
+      dom.dataInicio.value = state.dataInicio ?? '';
+      dom.sistema.value = state.sistema ?? 'price';
+    }
+
+    function readInputsToState() {
+      const cap = toCents(dom.capital.value);
+      const taxa = Number(dom.taxa.value);
+      const prazo = Math.trunc(Number(dom.prazo.value));
+      const dataInicio = dom.dataInicio.value;
+      const sistema = dom.sistema.value;
+
+      state.capitalCents = clamp(cap, 0, 9_999_999_999_99);
+      state.taxaPctAm = clamp(Number.isFinite(taxa) ? taxa : 0, 0, 1000);
+      state.prazoMeses = clamp(Number.isFinite(prazo) ? prazo : 1, 1, 600);
+      state.dataInicio = dataInicio;
+      state.sistema = (sistema === 'sac') ? 'sac' : 'price';
+
+      // validações UX
+      const d = parseLocalDate(state.dataInicio);
+      if (!d) showWarn('Informe uma data válida para o 1º pagamento.');
+      else showWarn('');
+    }
+
+    function render() {
+      readInputsToState();
+      saveState();
+
+      const { rows, jurosTotal, extraTotal, pmtBase } = buildSchedule();
+
+      // Datas
+      const start = parseLocalDate(state.dataInicio);
+      if (!start) {
+        dom.tabelaCorpo.innerHTML = '';
+        dom.parcelaInfo.textContent = 'Defina o 1º pagamento';
+        dom.extrasInfo.textContent = '';
+        // KPIs zerados
+        dom.kpiJuros.textContent = fmt(0);
+        dom.kpiRecebido.textContent = fmt(0);
+        dom.kpiSaldo.textContent = fmt(state.capitalCents);
+        dom.kpiProgresso.textContent = '0%';
+        dom.kpiRestante.textContent = `${fmt(state.capitalCents)} restantes`;
+        dom.kpiBar.style.width = '0%';
+        dom.kpiSistema.textContent = `SISTEMA: ${state.sistema.toUpperCase()}`;
+        dom.kpiPagas.textContent = `0/0 parcelas`;
+        return;
+      }
+
+      dom.kpiSistema.textContent = `SISTEMA: ${state.sistema.toUpperCase()}`;
+
+      // Info badges
+      if (state.sistema === 'price') {
+        dom.parcelaInfo.textContent = `PARCELA BASE: ${fmt(pmtBase)}`;
+      } else {
+        dom.parcelaInfo.textContent = `SAC: amortização fixa`;
+      }
+      dom.extrasInfo.textContent = `EXTRAS: ${fmt(extraTotal)}`;
+
+      // Table HTML (1 shot)
+      const htmlRows = [];
+      let totalDevido = 0;
+      let totalRecebido = 0;
+      let pagas = 0;
+
+      for (const r of rows) {
+        const venc = addMonths(start, r.mes - 1).toLocaleDateString('pt-BR');
+        const paid = !!state.statusPago[String(r.mes)];
+
+        totalDevido += r.totalPago; // total projetado considerando extras e manual (já capado)
+        if (paid) {
+          totalRecebido += r.totalPago;
+          pagas++;
+        }
+
+        const manualClass = r.manual ? 'border-indigo-400 bg-indigo-50' : 'border-slate-100 bg-white';
+        const extraVal = (state.extraCents[String(r.mes)] ?? 0);
+
+        htmlRows.push(`
+          <tr class="${paid ? 'bg-emerald-50/50' : ''} transition-all">
+            <td class="p-4">
+              <span class="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">${r.mes}ª PARCELA</span><br>
+              <span class="font-bold text-slate-700 text-xs">${venc}</span>
+            </td>
+
+            <td class="p-4 text-center">
+              <input
+                data-role="parcela"
+                data-mes="${r.mes}"
+                type="number"
+                min="0"
+                step="0.01"
+                value="${fromCents(r.parcela).toFixed(2)}"
+                class="w-28 text-center border-2 ${manualClass} rounded-lg p-2 font-bold text-indigo-600 outline-none focus:border-indigo-500"
+              />
+              <div class="text-[9px] text-slate-400 mt-1">
+                base: ${fmt(r.parcelaBase)}
+              </div>
+            </td>
+
+            <td class="p-4 text-center">
+              <input
+                data-role="extra"
+                data-mes="${r.mes}"
+                type="number"
+                min="0"
+                step="0.01"
+                value="${fromCents(extraVal).toFixed(2)}"
+                class="w-24 text-center border-2 border-emerald-100 bg-white rounded-lg p-2 font-bold text-emerald-700 outline-none focus:border-emerald-300"
+              />
+              <div class="text-[9px] text-slate-400 mt-1">
+                amortiza principal
+              </div>
+            </td>
+
+            <td class="p-4 text-right">
+              <span class="text-[9px] text-slate-400 font-medium">Juros: ${fmt(r.juros)}</span><br>
+              <span class="text-[9px] text-slate-400 font-medium">Amort: ${fmt(r.amortizacao)}</span><br>
+              <span class="font-bold text-slate-900 text-sm">Saldo: ${fmt(r.saldoFinal)}</span>
+            </td>
+
+            <td class="p-4 text-center no-print">
+              <input data-role="pago" data-mes="${r.mes}" type="checkbox" ${paid ? 'checked' : ''}
+                class="w-5 h-5 accent-emerald-500 rounded cursor-pointer">
+            </td>
+          </tr>
+        `);
+      }
+
+      dom.tabelaCorpo.innerHTML = htmlRows.join('');
+
+      // KPIs
+      dom.kpiJuros.textContent = fmt(jurosTotal);
+      dom.kpiRecebido.textContent = fmt(totalRecebido);
+
+      // saldo hoje: simula abatendo os "pagos"
+      // (recalcula cronograma, mas aplicando pagamentos efetivos só nos pagos)
+      // aqui a aproximação é: saldoFinal do último mês pago na projeção
+      let saldoHoje = state.capitalCents;
+      for (const r of rows) {
+        if (!state.statusPago[String(r.mes)]) break;
+        saldoHoje = r.saldoFinal;
+      }
+      dom.kpiSaldo.textContent = fmt(saldoHoje);
+
+      const perc = totalDevido > 0 ? (totalRecebido / totalDevido) * 100 : 0;
+      dom.kpiBar.style.width = `${clamp(perc, 0, 100)}%`;
+      dom.kpiProgresso.textContent = `${Math.round(perc)}%`;
+      dom.kpiRestante.textContent = `${fmt(Math.max(0, totalDevido - totalRecebido))} restantes`;
+      dom.kpiPagas.textContent = `${pagas}/${rows.length} parcelas`;
+
+      // Whats text
+      dom.btnWhats.dataset.prog = `${Math.round(perc)}%`;
+      dom.btnWhats.dataset.rest = `${fmt(Math.max(0, totalDevido - totalRecebido))}`;
+    }
+
+    const renderDebounced = debounce(render, 250);
+
+    /***********************
+     * Events
+     ***********************/
+    // top inputs (debounced)
+    ['input', 'change'].forEach(evt => {
+      dom.capital.addEventListener(evt, renderDebounced);
+      dom.taxa.addEventListener(evt, renderDebounced);
+      dom.prazo.addEventListener(evt, renderDebounced);
+      dom.dataInicio.addEventListener(evt, renderDebounced);
+      dom.sistema.addEventListener(evt, renderDebounced);
+    });
+
+    // table delegation
+    dom.tabelaCorpo.addEventListener('change', (e) => {
+      const t = e.target;
+      const role = t.getAttribute('data-role');
+      const mes = t.getAttribute('data-mes');
+      if (!role || !mes) return;
+
+      if (role === 'pago') {
+        state.statusPago[mes] = !!t.checked;
+        saveState();
+        render();
+        return;
+      }
+
+      if (role === 'parcela') {
+        const cents = toCents(t.value);
+        // se zerar/apagar, remove override
+        if (!t.value || cents <= 0) delete state.parcelaManualCents[mes];
+        else state.parcelaManualCents[mes] = cents;
+        saveState();
+        render();
+        return;
+      }
+
+      if (role === 'extra') {
+        const cents = toCents(t.value);
+        if (!t.value || cents <= 0) delete state.extraCents[mes];
+        else state.extraCents[mes] = cents;
+        saveState();
+        render();
+        return;
+      }
+    });
+
+    // reset
+    dom.btnReset.addEventListener('click', () => {
+      if (!confirm('Deseja resetar todos os dados?')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state = loadState();
+      hydrateInputs();
+      render();
+    });
+
+    // print
+    dom.btnPrint.addEventListener('click', () => window.print());
+
+    // export CSV
+    dom.btnExportCSV.addEventListener('click', () => {
+      const { rows } = buildSchedule();
+      const start = parseLocalDate(state.dataInicio);
+      if (!start) return alert('Defina uma data de início válida.');
+
+      const header = ['Mes','Vencimento','Parcela','Extra','TotalPago','Juros','Amortizacao','SaldoFinal','Pago?'];
+      const lines = [header.join(';')];
+
+      for (const r of rows) {
+        const venc = addMonths(start, r.mes - 1).toLocaleDateString('pt-BR');
+        const paid = !!state.statusPago[String(r.mes)];
+        lines.push([
+          r.mes,
+          venc,
+          fromCents(r.parcela).toFixed(2),
+          fromCents(state.extraCents[String(r.mes)] ?? 0).toFixed(2),
+          fromCents(r.totalPago).toFixed(2),
+          fromCents(r.juros).toFixed(2),
+          fromCents(r.amortizacao).toFixed(2),
+          fromCents(r.saldoFinal).toFixed(2),
+          paid ? 'SIM' : 'NAO'
+        ].join(';'));
+      }
+
+      const blob = new Blob(["\uFEFF" + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `smartloan_${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    // export JSON
+    dom.btnExportJSON.addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `smartloan_${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    // import JSON
+    dom.fileImportJSON.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const txt = await file.text();
+        const parsed = JSON.parse(txt);
+
+        // merge + valida
+        state = {
+          ...structuredClone(DEFAULT_STATE),
+          ...parsed,
+          statusPago: parsed.statusPago ?? {},
+          parcelaManualCents: parsed.parcelaManualCents ?? {},
+          extraCents: parsed.extraCents ?? {},
+          version: 4
         };
 
-        function calcularPMT(p, i, n) {
-            if (i <= 0) return p / n;
-            return (p * (i * Math.pow(1 + i, n))) / (Math.pow(1 + i, n) - 1);
-        }
-
-        function saveAndRender() {
-            render();
-            const data = {
-                capital: document.getElementById('capital').value,
-                taxa: document.getElementById('taxa').value,
-                prazo: document.getElementById('prazo').value,
-                dataInicio: document.getElementById('dataInicio').value,
-                pagamentos: config.pagamentos,
-                status: config.status
-            };
-            localStorage.setItem('smartLoanConfig', JSON.stringify(data));
-        }
-
-        function toggleStatus(mes) {
-            config.status[mes] = !config.status[mes];
-            saveAndRender();
-        }
-
-        function updatePagamento(mes, valor) {
-            config.pagamentos[mes] = parseFloat(valor);
-            saveAndRender();
-        }
-
-        function limparTudo() {
-            if(confirm("Deseja resetar todos os dados e pagamentos?")) {
-                localStorage.removeItem('smartLoanConfig');
-                config = { pagamentos: {}, status: {} };
-                location.reload();
-            }
-        }
-
-        function render() {
-            const cap = parseFloat(document.getElementById('capital').value) || 0;
-            const taxa = (parseFloat(document.getElementById('taxa').value) || 0) / 100;
-            const prazo = parseInt(document.getElementById('prazo').value) || 1;
-            const dataI = document.getElementById('dataInicio').value;
-            const pmtBase = calcularPMT(cap, taxa, prazo);
-
-            const corpo = document.getElementById('tabelaCorpo');
-            corpo.innerHTML = '';
-
-            let saldo = cap;
-            let totalJuros = 0;
-            let totalPagoJa = 0;
-            let mes = 1;
-
-            while (saldo > 0.01 && mes <= 60) {
-                let jurosMes = saldo * taxa;
-                let valorPago = config.pagamentos[mes] !== undefined ? config.pagamentos[mes] : pmtBase;
-                
-                // Regra de Abril Automática (apenas se capital for 5000 e não houver edição manual)
-                if (mes === 2 && config.pagamentos[mes] === undefined && cap === 5000) valorPago = pmtBase + 2000;
-                
-                if (valorPago > (saldo + jurosMes)) valorPago = saldo + jurosMes;
-
-                let amort = valorPago - jurosMes;
-                let saldoFinal = saldo - amort;
-                totalJuros += jurosMes;
-
-                if (config.status[mes]) totalPagoJa += valorPago;
-
-                const dataVenc = new Date(dataI + 'T12:00:00');
-                dataVenc.setMonth(dataVenc.getMonth() + (mes - 1));
-
-                corpo.innerHTML += `
-                    <tr class="${config.status[mes] ? 'bg-emerald-50/50 opacity-60' : ''} transition-all">
-                        <td class="p-4">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase">${mes}ª</span><br>
-                            <span class="font-bold text-slate-700">${dataVenc.toLocaleDateString('pt-BR')}</span>
-                        </td>
-                        <td class="p-4 text-center">
-                            <input type="number" step="0.01" value="${valorPago.toFixed(2)}" onchange="updatePagamento(${mes}, this.value)" 
-                            class="w-24 text-center border rounded-lg p-2 font-bold text-indigo-600 bg-white">
-                        </td>
-                        <td class="p-4 text-right">
-                            <span class="text-[9px] text-slate-400 italic">Juros: R$ ${jurosMes.toFixed(2)}</span><br>
-                            <span class="font-bold text-slate-900">R$ ${Math.max(0, saldoFinal).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
-                        </td>
-                        <td class="p-4 text-center no-print">
-                            <input type="checkbox" ${config.status[mes] ? 'checked' : ''} onchange="toggleStatus(${mes})" class="w-5 h-5 accent-emerald-500 cursor-pointer">
-                        </td>
-                    </tr>`;
-                saldo = saldoFinal;
-                mes++;
-            }
-
-            // Update UI
-            document.getElementById('totalJuros').innerText = `R$ ${totalJuros.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-            document.getElementById('totalReceber').innerText = `R$ ${totalPagoJa.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-            
-            // Progress Calculation
-            let perc = (totalPagoJa / (cap + totalJuros)) * 100;
-            document.getElementById('progressBar').style.width = `${perc}%`;
-            document.getElementById('progressoTexto').innerText = `${Math.round(perc)}%`;
-            document.getElementById('restanteTexto').innerText = `R$ ${( (cap + totalJuros) - totalPagoJa).toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
-        }
-
-        function enviarWhatsApp() {
-            const totalFalta = document.getElementById('restanteTexto').innerText;
-            const texto = `Olá! Segue o status atualizado do empréstimo:\n\n✅ Quitado: ${document.getElementById('progressoTexto').innerText}\n💰 Restante: ${totalFalta}\n\nConfira os detalhes no simulador.`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
-        }
-
-        // Carregar dados salvos
-        if(config.capital) document.getElementById('capital').value = config.capital;
-        if(config.taxa) document.getElementById('taxa').value = config.taxa;
-        if(config.prazo) document.getElementById('prazo').value = config.prazo;
-        if(config.dataInicio) document.getElementById('dataInicio').value = config.dataInicio;
-
+        saveState();
+        hydrateInputs();
         render();
-    </script>
+        alert('Importação concluída ✅');
+      } catch (err) {
+        alert('JSON inválido. Não foi possível importar.');
+      } finally {
+        dom.fileImportJSON.value = '';
+      }
+    });
+
+    // Whats
+    dom.btnWhats.addEventListener('click', () => {
+      const prog = dom.btnWhats.dataset.prog ?? '0%';
+      const rest = dom.btnWhats.dataset.rest ?? 'R$ 0,00';
+      const texto =
+        `Resumo SmartLoan:\n` +
+        `📊 Quitado: ${prog}\n` +
+        `💰 Restante: ${rest}\n` +
+        `🧾 Sistema: ${state.sistema.toUpperCase()}\n\n` +
+        `Cronograma gerado pelo SmartLoan.`;
+      window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+    });
+
+    /***********************
+     * Init
+     ***********************/
+    hydrateInputs();
+    render();
+  </script>
 </body>
 </html>
