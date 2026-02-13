@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartLoan v4 — Bankme Style</title>
+  <title>SmartLoan v4.2 — Recalculo + Multas opcionais + Juros primeiro</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
@@ -15,9 +15,9 @@
 
 <body class="bg-slate-50 text-slate-800 pb-10">
   <nav class="p-4 bg-white shadow-sm border-b no-print sticky top-0 z-50">
-    <div class="flex justify-between items-center max-w-5xl mx-auto">
+    <div class="flex justify-between items-center max-w-6xl mx-auto">
       <span class="text-xl font-bold text-indigo-600 tracking-tight">
-        SmartLoan <span class="text-slate-400 font-light italic text-sm">v4.0</span>
+        SmartLoan <span class="text-slate-400 font-light italic text-sm">v4.2</span>
       </span>
 
       <div class="flex gap-2 flex-wrap justify-end">
@@ -50,18 +50,18 @@
     </div>
   </nav>
 
-  <main class="p-4 max-w-5xl mx-auto space-y-6">
+  <main class="p-4 max-w-6xl mx-auto space-y-6">
 
-    <!-- DASH -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <!-- KPIs -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
       <div class="bg-indigo-600 p-6 rounded-3xl text-white shadow-xl">
-        <p class="text-[10px] uppercase opacity-70 font-bold tracking-widest">Juros Total</p>
+        <p class="text-[10px] uppercase opacity-70 font-bold tracking-widest">Juros Acumulado</p>
         <h2 id="kpiJuros" class="text-3xl font-bold">R$ 0,00</h2>
         <p id="kpiSistema" class="text-[10px] mt-2 opacity-80 font-bold tracking-widest">SISTEMA: PRICE</p>
       </div>
 
       <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-center">
-        <p class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Progresso (Pago)</p>
+        <p class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Progresso (Recebido)</p>
         <div class="flex items-end gap-2">
           <h2 id="kpiProgresso" class="text-3xl font-extrabold text-slate-900">0%</h2>
           <p id="kpiRestante" class="text-xs font-bold text-indigo-600 mb-1">R$ 0,00 restantes</p>
@@ -78,40 +78,46 @@
       </div>
 
       <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-center text-center">
-        <p class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Saldo Devedor (Hoje)</p>
+        <p class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Saldo Devedor</p>
         <h2 id="kpiSaldo" class="text-3xl font-bold text-slate-900">R$ 0,00</h2>
-        <p class="text-[10px] mt-2 text-slate-400 font-bold tracking-widest">considera pagamentos/extras</p>
+        <p class="text-[10px] mt-2 text-slate-400 font-bold tracking-widest">principal (sem juros em aberto)</p>
+      </div>
+
+      <div class="bg-amber-50 p-6 rounded-3xl border border-amber-100 shadow-sm flex flex-col justify-center text-center">
+        <p class="text-[10px] uppercase text-amber-700 font-bold tracking-widest">Juros em Aberto</p>
+        <h2 id="kpiJurosAberto" class="text-3xl font-bold text-amber-800">R$ 0,00</h2>
+        <p class="text-[10px] mt-2 text-amber-700 font-bold tracking-widest">carrega para próximos meses</p>
       </div>
     </div>
 
-    <!-- INPUTS -->
-    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm no-print grid grid-cols-2 md:grid-cols-6 gap-4">
-      <div class="md:col-span-1">
+    <!-- Inputs -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm no-print grid grid-cols-2 md:grid-cols-12 gap-4">
+      <div class="md:col-span-2">
         <label class="text-[10px] font-bold text-slate-400 uppercase">Capital (R$)</label>
         <input type="number" id="capital" min="0" step="0.01"
           class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg">
       </div>
 
-      <div class="md:col-span-1">
+      <div class="md:col-span-2">
         <label class="text-[10px] font-bold text-slate-400 uppercase">Juros (% am)</label>
         <input type="number" id="taxa" min="0" step="0.01"
           class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg text-indigo-600">
       </div>
 
-      <div class="md:col-span-1">
+      <div class="md:col-span-2">
         <label class="text-[10px] font-bold text-slate-400 uppercase">Prazo (Meses)</label>
         <input type="number" id="prazo" min="1" step="1"
           class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg">
       </div>
 
-      <div class="md:col-span-1">
+      <div class="md:col-span-2">
         <label class="text-[10px] font-bold text-slate-400 uppercase">1º Pagamento</label>
         <input type="date" id="dataInicio"
           class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold">
       </div>
 
       <div class="md:col-span-2">
-        <label class="text-[10px] font-bold text-slate-400 uppercase">Sistema de Amortização</label>
+        <label class="text-[10px] font-bold text-slate-400 uppercase">Sistema</label>
         <select id="sistema"
           class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold">
           <option value="price">PRICE (parcela fixa)</option>
@@ -119,18 +125,54 @@
         </select>
       </div>
 
-      <div class="md:col-span-6 -mt-1">
+      <div class="md:col-span-2">
+        <label class="text-[10px] font-bold text-slate-400 uppercase">Recalcular (PRICE)</label>
+        <select id="recalcMode"
+          class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold">
+          <option value="keep_payment">Manter parcela (recalcula prazo)</option>
+          <option value="keep_term">Manter prazo (recalcula parcela)</option>
+          <option value="none">Não recalcular</option>
+        </select>
+      </div>
+
+      <!-- Multas opcionais (se vazio, não aplica) -->
+      <div class="md:col-span-2">
+        <label class="text-[10px] font-bold text-slate-400 uppercase">Multa (% única) — opcional</label>
+        <input id="multaPct" type="number" min="0" step="0.01" placeholder="ex.: 2"
+          class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold">
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="text-[10px] font-bold text-slate-400 uppercase">Mora (% a.m.) — opcional</label>
+        <input id="jurosMoraPctAm" type="number" min="0" step="0.01" placeholder="ex.: 1"
+          class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold">
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="text-[10px] font-bold text-slate-400 uppercase">Carência (dias) — opcional</label>
+        <input id="carenciaDias" type="number" min="0" step="1" placeholder="ex.: 0"
+          class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold">
+      </div>
+
+      <div class="md:col-span-6">
+        <label class="text-[10px] font-bold text-slate-400 uppercase">Limite de meses (para manter parcela)</label>
+        <input id="maxMeses" type="number" min="1" step="1"
+          class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold">
+      </div>
+
+      <div class="md:col-span-12 -mt-1">
         <p id="warn" class="text-xs font-bold text-amber-700 hidden">⚠️</p>
       </div>
     </div>
 
-    <!-- TABLE -->
+    <!-- Table -->
     <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
       <div class="p-4 bg-slate-50/50 border-b border-slate-100 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
         <h3 class="text-xs font-bold text-slate-500 uppercase">Fluxo de Caixa Detalhado</h3>
-        <div class="flex gap-2 items-center">
+        <div class="flex gap-2 items-center flex-wrap">
           <span id="parcelaInfo" class="text-[10px] font-bold text-indigo-600 px-3 py-1 bg-indigo-50 rounded-full"></span>
           <span id="extrasInfo" class="text-[10px] font-bold text-emerald-700 px-3 py-1 bg-emerald-50 rounded-full"></span>
+          <span id="atrasoInfo" class="text-[10px] font-bold text-amber-800 px-3 py-1 bg-amber-50 rounded-full hidden"></span>
         </div>
       </div>
 
@@ -150,44 +192,42 @@
       </div>
     </div>
 
-    <button id="btnWhats" class="no-print w-full bg-emerald-500 text-white p-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg hover:bg-emerald-600 transition active:scale-95">
+    <button id="btnWhats"
+      class="no-print w-full bg-emerald-500 text-white p-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg hover:bg-emerald-600 transition active:scale-95">
       💬 Compartilhar via WhatsApp
     </button>
   </main>
 
   <script>
     /***********************
-     * Utils (money/date)
+     * Utils
      ***********************/
     const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
     const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 
     function toCents(v) {
-      const n = Number(v);
+      if (v === null || v === undefined) return 0;
+      const s = String(v).trim();
+      if (!s) return 0;
+      const n = Number(s);
       if (!Number.isFinite(n)) return 0;
       return Math.round(n * 100);
     }
-    function fromCents(c) {
-      return (c / 100);
-    }
-    function fmt(cents) {
-      return BRL.format(fromCents(cents));
-    }
+    function fromCents(c) { return (c / 100); }
+    function fmt(cents) { return BRL.format(fromCents(cents)); }
 
-    // Safe local date: yyyy-mm-dd -> Date(y,m-1,d,12)
+    // yyyy-mm-dd -> Date(y, m-1, d, 12)
     function parseLocalDate(dateStr) {
       if (!dateStr) return null;
       const [y, m, d] = dateStr.split('-').map(Number);
       if (!y || !m || !d) return null;
       return new Date(y, m - 1, d, 12, 0, 0);
     }
-
     function addMonths(date, months) {
       const d = new Date(date.getTime());
       d.setMonth(d.getMonth() + months);
       return d;
     }
-
     function debounce(fn, ms = 250) {
       let t;
       return (...args) => {
@@ -196,21 +236,38 @@
       };
     }
 
+    // Date difference in whole days (local-safe)
+    function daysBetween(d1, d2) {
+      const ms = 24 * 60 * 60 * 1000;
+      const a = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate(), 12).getTime();
+      const b = new Date(d2.getFullYear(), d2.getMonth(), d2.getDate(), 12).getTime();
+      return Math.floor((b - a) / ms);
+    }
+
     /***********************
      * State
      ***********************/
-    const STORAGE_KEY = 'smartLoanConfig.v4';
+    const STORAGE_KEY = 'smartLoanConfig.v4_2';
+
     const DEFAULT_STATE = {
-      version: 4,
+      version: '4.2',
       capitalCents: 5000_00,
       taxaPctAm: 3.2,
       prazoMeses: 12,
       dataInicio: '2026-03-07',
-      sistema: 'price', // 'price' | 'sac'
-      // por mês:
-      statusPago: {},        // { "1": true }
-      parcelaManualCents: {},// { "1": 12345 }  (override apenas da parcela)
-      extraCents: {},        // { "1": 5000 }   (amortização extra)
+      sistema: 'price',        // 'price' | 'sac'
+      recalcMode: 'keep_payment', // keep_payment | keep_term | none
+      maxMeses: 240,
+
+      statusPago: {},           // { "1": true }
+      paidAt: {},               // { "1": "2026-03-07" } (só necessário se multas configuradas, mas pode existir sempre)
+      parcelaManualCents: {},   // override apenas parcela
+      extraCents: {},           // extra amortiza principal
+
+      // Multas opcionais: se null/"" => não aplica
+      multaPct: null,           // % única (ex: 2)
+      jurosMoraPctAm: null,     // % ao mês (ex: 1)
+      carenciaDias: null        // dias
     };
 
     function loadState() {
@@ -218,13 +275,13 @@
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return structuredClone(DEFAULT_STATE);
         const parsed = JSON.parse(raw);
-        // merge resiliente
         return {
           ...structuredClone(DEFAULT_STATE),
           ...parsed,
           statusPago: parsed.statusPago ?? {},
+          paidAt: parsed.paidAt ?? {},
           parcelaManualCents: parsed.parcelaManualCents ?? {},
-          extraCents: parsed.extraCents ?? {},
+          extraCents: parsed.extraCents ?? {}
         };
       } catch {
         return structuredClone(DEFAULT_STATE);
@@ -232,84 +289,140 @@
     }
 
     let state = loadState();
-
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
+    function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
     /***********************
      * Finance
      ***********************/
-    // PMT em centavos (PRICE)
     function pmtPriceCents(principalCents, taxaMensal, n) {
       if (n <= 0) return 0;
       if (taxaMensal <= 0) return Math.round(principalCents / n);
-      // usa double aqui mas arredonda no final; o resto fica em centavos
       const P = principalCents / 100;
       const i = taxaMensal;
       const pmt = (P * (i * Math.pow(1 + i, n))) / (Math.pow(1 + i, n) - 1);
       return Math.round(pmt * 100);
     }
 
+    // Multas opcionais:
+    // - se multaPct vazio => 0
+    // - se jurosMoraPctAm vazio => 0
+    // - carência vazio => 0
+    function hasAnyPenaltyConfig() {
+      const mp = (state.multaPct !== null && state.multaPct !== '' && Number.isFinite(Number(state.multaPct)));
+      const jm = (state.jurosMoraPctAm !== null && state.jurosMoraPctAm !== '' && Number.isFinite(Number(state.jurosMoraPctAm)));
+      return mp || jm;
+    }
+
+    // Encargos por atraso calculados sobre o VALOR PAGO NO MÊS (totalPago do cronograma daquele mês).
+    // (Se preferir “somente sobre parcela”, troque baseCents para r.parcela)
+    function calcEncargosAtraso(baseCents, dueDate, paidDate) {
+      const multaPct = (state.multaPct === null || state.multaPct === '' || !Number.isFinite(Number(state.multaPct))) ? 0 : Number(state.multaPct);
+      const moraPctAm = (state.jurosMoraPctAm === null || state.jurosMoraPctAm === '' || !Number.isFinite(Number(state.jurosMoraPctAm))) ? 0 : Number(state.jurosMoraPctAm);
+      const carencia = (state.carenciaDias === null || state.carenciaDias === '' || !Number.isFinite(Number(state.carenciaDias))) ? 0 : Math.trunc(Number(state.carenciaDias));
+
+      let dias = Math.max(0, daysBetween(dueDate, paidDate) - Math.max(0, carencia));
+      if (dias <= 0 || (multaPct <= 0 && moraPctAm <= 0)) {
+        return { diasAtraso: 0, multa: 0, mora: 0, encargos: 0 };
+      }
+
+      const multa = multaPct > 0 ? Math.round(baseCents * (multaPct / 100)) : 0;
+      const moraDia = (moraPctAm / 100) / 30; // simples
+      const mora = moraPctAm > 0 ? Math.round(baseCents * moraDia * dias) : 0;
+
+      return { diasAtraso: dias, multa, mora, encargos: multa + mora };
+    }
+
+    /**
+     * Cronograma com regra "juros primeiro" + "juros em aberto carrega":
+     * - jurosCorrente = saldo * taxa
+     * - jurosDevido = jurosCorrente + jurosEmAbertoAnterior
+     * - pagamento aplica primeiro em jurosDevido
+     * - só o excedente amortiza principal
+     * - juros não pagos viram jurosEmAbertoProximo
+     *
+     * Recalculo:
+     * - PRICE keep_payment: PMT fica fixa, prazo pode estender até quitar saldo e juros em aberto
+     * - PRICE keep_term: recalcula PMT para encerrar no prazo original
+     * - none: PMT base não muda
+     */
     function buildSchedule() {
       const capital = state.capitalCents;
       const taxaMensal = (Number(state.taxaPctAm) || 0) / 100;
-      const prazo = Math.max(1, Number(state.prazoMeses) || 1);
+      const prazoOriginal = Math.max(1, Number(state.prazoMeses) || 1);
       const sistema = state.sistema;
+      const recalcMode = state.recalcMode ?? 'keep_payment';
+      const maxMeses = clamp(Number(state.maxMeses ?? 240), 1, 600);
 
       let saldo = capital;
+      let jurosEmAberto = 0;
+
       const rows = [];
 
-      // SAC: amort fixa
-      const amortSAC = sistema === 'sac' ? Math.floor(capital / prazo) : 0;
+      const amortSAC = sistema === 'sac' ? Math.floor(capital / prazoOriginal) : 0;
 
-      // PRICE: pmt fixa
-      const pmtBase = sistema === 'price' ? pmtPriceCents(capital, taxaMensal, prazo) : 0;
+      let pmtAtual = sistema === 'price'
+        ? pmtPriceCents(capital, taxaMensal, prazoOriginal)
+        : 0;
 
       let jurosTotal = 0;
       let extraTotal = 0;
 
-      for (let mes = 1; mes <= prazo; mes++) {
-        if (saldo <= 0) break;
+      const limite = (sistema === 'price' && recalcMode === 'keep_payment')
+        ? maxMeses
+        : prazoOriginal;
 
-        const juros = Math.round((saldo / 100) * taxaMensal * 100); // centavos
-        jurosTotal += juros;
+      for (let mes = 1; mes <= limite; mes++) {
+        if (saldo <= 0 && jurosEmAberto <= 0) break;
+
+        const jurosCorrente = Math.round((saldo / 100) * taxaMensal * 100);
+        jurosTotal += jurosCorrente;
 
         const extra = clamp(state.extraCents[String(mes)] ?? 0, 0, 1_000_000_000_00);
         extraTotal += extra;
 
+        // Parcela base (antes de manual)
         let parcelaBase;
         if (sistema === 'price') {
-          parcelaBase = pmtBase;
+          parcelaBase = pmtAtual;
         } else {
-          // SAC: parcela = juros + amort
-          // última parcela: amort pode ser o saldo restante
-          const amort = (mes === prazo) ? saldo : Math.min(amortSAC, saldo);
-          parcelaBase = juros + amort;
+          // SAC: parcela = jurosCorrente + amort (amort pode ser 0 se já quitou principal, mas ainda tem juros em aberto)
+          const amortPlano = (mes === prazoOriginal) ? saldo : Math.min(amortSAC, saldo);
+          parcelaBase = jurosCorrente + amortPlano;
         }
 
-        // override manual da parcela (não mexe no extra)
         const manual = state.parcelaManualCents[String(mes)];
-        const parcela = (manual !== undefined) ? clamp(manual, 0, 1_000_000_000_00) : parcelaBase;
+        const parcela = (manual !== undefined)
+          ? clamp(manual, 0, 1_000_000_000_00)
+          : parcelaBase;
 
-        // segurança: pagamento total não pode exceder saldo + juros (extra amortiza principal)
+        // Total "pretendido pagar" neste mês (parcela + extra).
+        // Cap de segurança: não pagar mais do que principal+jurosDevidos
+        const jurosDevido = jurosCorrente + jurosEmAberto;
+
         let totalPago = parcela + extra;
-        const maxTotal = saldo + juros;
-        if (totalPago > maxTotal) {
-          totalPago = maxTotal;
-        }
+        const maxTotal = saldo + jurosDevido;
+        if (totalPago > maxTotal) totalPago = maxTotal;
 
-        // amortização = totalPago - juros
-        const amortizacao = Math.max(0, totalPago - juros);
+        // Juros primeiro
+        const jurosPago = Math.min(totalPago, jurosDevido);
+        const amortizacao = Math.max(0, totalPago - jurosPago);
+
         const saldoFinal = Math.max(0, saldo - amortizacao);
+        const jurosEmAbertoNext = Math.max(0, jurosDevido - jurosPago);
 
         rows.push({
           mes,
-          juros,
+          jurosCorrente,
+          jurosEmAbertoPrev: jurosEmAberto,
+          jurosDevido,
+          jurosPago,
+          jurosEmAbertoNext,
+
           parcelaBase,
           parcela,
           extra,
           totalPago,
+
           amortizacao,
           saldoInicial: saldo,
           saldoFinal,
@@ -317,15 +430,31 @@
         });
 
         saldo = saldoFinal;
+        jurosEmAberto = jurosEmAbertoNext;
+
+        // Recalculo PRICE
+        if (sistema === 'price' && recalcMode !== 'none') {
+          const houveEdicao = (manual !== undefined) || extra > 0;
+
+          if (houveEdicao) {
+            if (recalcMode === 'keep_term') {
+              const restantes = Math.max(1, prazoOriginal - mes);
+              // Recalcula PMT sobre o saldo (principal) — juros em aberto continuará sendo cobrado antes da amortização
+              pmtAtual = pmtPriceCents(saldo, taxaMensal, restantes);
+            } else if (recalcMode === 'keep_payment') {
+              // mantém pmtAtual, prazo pode estender até quitar
+            }
+          }
+        }
       }
 
       return {
         rows,
         jurosTotal,
         extraTotal,
-        pmtBase,
+        pmtBase: pmtAtual,
         taxaMensal,
-        prazo
+        prazoOriginal
       };
     }
 
@@ -340,11 +469,17 @@
       prazo: el('prazo'),
       dataInicio: el('dataInicio'),
       sistema: el('sistema'),
+      recalcMode: el('recalcMode'),
+      multaPct: el('multaPct'),
+      jurosMoraPctAm: el('jurosMoraPctAm'),
+      carenciaDias: el('carenciaDias'),
+      maxMeses: el('maxMeses'),
       warn: el('warn'),
 
       tabelaCorpo: el('tabelaCorpo'),
       parcelaInfo: el('parcelaInfo'),
       extrasInfo: el('extrasInfo'),
+      atrasoInfo: el('atrasoInfo'),
 
       kpiJuros: el('kpiJuros'),
       kpiRecebido: el('kpiRecebido'),
@@ -354,6 +489,7 @@
       kpiBar: el('kpiBar'),
       kpiSistema: el('kpiSistema'),
       kpiPagas: el('kpiPagas'),
+      kpiJurosAberto: el('kpiJurosAberto'),
 
       btnReset: el('btnReset'),
       btnPrint: el('btnPrint'),
@@ -379,85 +515,145 @@
       dom.prazo.value = Number(state.prazoMeses ?? 12);
       dom.dataInicio.value = state.dataInicio ?? '';
       dom.sistema.value = state.sistema ?? 'price';
+      dom.recalcMode.value = state.recalcMode ?? 'keep_payment';
+      dom.maxMeses.value = Number(state.maxMeses ?? 240);
+
+      // Multas opcionais: se null -> deixa vazio
+      dom.multaPct.value = (state.multaPct === null || state.multaPct === '') ? '' : String(state.multaPct);
+      dom.jurosMoraPctAm.value = (state.jurosMoraPctAm === null || state.jurosMoraPctAm === '') ? '' : String(state.jurosMoraPctAm);
+      dom.carenciaDias.value = (state.carenciaDias === null || state.carenciaDias === '') ? '' : String(state.carenciaDias);
     }
 
     function readInputsToState() {
-      const cap = toCents(dom.capital.value);
-      const taxa = Number(dom.taxa.value);
-      const prazo = Math.trunc(Number(dom.prazo.value));
-      const dataInicio = dom.dataInicio.value;
-      const sistema = dom.sistema.value;
+      state.capitalCents = clamp(toCents(dom.capital.value), 0, 9_999_999_999_99);
+      state.taxaPctAm = clamp(Number(dom.taxa.value) || 0, 0, 1000);
+      state.prazoMeses = clamp(Math.trunc(Number(dom.prazo.value) || 1), 1, 600);
+      state.dataInicio = dom.dataInicio.value;
+      state.sistema = (dom.sistema.value === 'sac') ? 'sac' : 'price';
+      state.recalcMode = (dom.recalcMode.value === 'keep_term' || dom.recalcMode.value === 'none') ? dom.recalcMode.value : 'keep_payment';
+      state.maxMeses = clamp(Math.trunc(Number(dom.maxMeses.value) || 240), 1, 600);
 
-      state.capitalCents = clamp(cap, 0, 9_999_999_999_99);
-      state.taxaPctAm = clamp(Number.isFinite(taxa) ? taxa : 0, 0, 1000);
-      state.prazoMeses = clamp(Number.isFinite(prazo) ? prazo : 1, 1, 600);
-      state.dataInicio = dataInicio;
-      state.sistema = (sistema === 'sac') ? 'sac' : 'price';
+      // Opcionais: se vazio => null
+      const mp = String(dom.multaPct.value ?? '').trim();
+      const jm = String(dom.jurosMoraPctAm.value ?? '').trim();
+      const cd = String(dom.carenciaDias.value ?? '').trim();
 
-      // validações UX
+      state.multaPct = mp === '' ? null : clamp(Number(mp) || 0, 0, 100);
+      state.jurosMoraPctAm = jm === '' ? null : clamp(Number(jm) || 0, 0, 1000);
+      state.carenciaDias = cd === '' ? null : clamp(Math.trunc(Number(cd) || 0), 0, 365);
+
       const d = parseLocalDate(state.dataInicio);
       if (!d) showWarn('Informe uma data válida para o 1º pagamento.');
       else showWarn('');
+    }
+
+    function todayISO() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
     }
 
     function render() {
       readInputsToState();
       saveState();
 
-      const { rows, jurosTotal, extraTotal, pmtBase } = buildSchedule();
+      const { rows, jurosTotal, extraTotal, pmtBase, prazoOriginal } = buildSchedule();
 
-      // Datas
       const start = parseLocalDate(state.dataInicio);
       if (!start) {
         dom.tabelaCorpo.innerHTML = '';
         dom.parcelaInfo.textContent = 'Defina o 1º pagamento';
         dom.extrasInfo.textContent = '';
-        // KPIs zerados
+        dom.atrasoInfo.classList.add('hidden');
+        dom.kpiSistema.textContent = `SISTEMA: ${state.sistema.toUpperCase()}`;
+
         dom.kpiJuros.textContent = fmt(0);
         dom.kpiRecebido.textContent = fmt(0);
         dom.kpiSaldo.textContent = fmt(state.capitalCents);
+        dom.kpiJurosAberto.textContent = fmt(0);
+
         dom.kpiProgresso.textContent = '0%';
         dom.kpiRestante.textContent = `${fmt(state.capitalCents)} restantes`;
         dom.kpiBar.style.width = '0%';
-        dom.kpiSistema.textContent = `SISTEMA: ${state.sistema.toUpperCase()}`;
         dom.kpiPagas.textContent = `0/0 parcelas`;
         return;
       }
 
-      dom.kpiSistema.textContent = `SISTEMA: ${state.sistema.toUpperCase()}`;
+      dom.kpiSistema.textContent = `SISTEMA: ${state.sistema.toUpperCase()} | RECÁLCULO: ${state.recalcMode.replace('_', ' ').toUpperCase()}`;
 
-      // Info badges
       if (state.sistema === 'price') {
-        dom.parcelaInfo.textContent = `PARCELA BASE: ${fmt(pmtBase)}`;
+        dom.parcelaInfo.textContent = `PARCELA BASE: ${fmt(pmtBase)} (${prazoOriginal}m)`;
       } else {
-        dom.parcelaInfo.textContent = `SAC: amortização fixa`;
+        dom.parcelaInfo.textContent = `SAC: amortização fixa (${prazoOriginal}m)`;
       }
       dom.extrasInfo.textContent = `EXTRAS: ${fmt(extraTotal)}`;
 
-      // Table HTML (1 shot)
+      // Table HTML
       const htmlRows = [];
-      let totalDevido = 0;
-      let totalRecebido = 0;
+
+      let totalDevidoProjetado = 0;     // soma do totalPago projetado (parcela+extra capado)
+      let totalRecebido = 0;            // soma de pagamentos marcados
+      let encargosRecebidos = 0;        // multas/mora (se configuradas e pago em atraso)
       let pagas = 0;
 
-      for (const r of rows) {
-        const venc = addMonths(start, r.mes - 1).toLocaleDateString('pt-BR');
-        const paid = !!state.statusPago[String(r.mes)];
+      // KPIs de "hoje"
+      let saldoHoje = state.capitalCents;
+      let jurosAbertoHoje = 0;
 
-        totalDevido += r.totalPago; // total projetado considerando extras e manual (já capado)
+      const penaltiesEnabled = hasAnyPenaltyConfig();
+      let atrasosCount = 0;
+
+      for (const r of rows) {
+        const mesKey = String(r.mes);
+        const vencDate = addMonths(start, r.mes - 1);
+        const venc = vencDate.toLocaleDateString('pt-BR');
+
+        const paid = !!state.statusPago[mesKey];
+
+        // Projetado total devido (sem multas)
+        totalDevidoProjetado += r.totalPago;
+
+        // Atualiza "hoje" até a primeira parcela não paga (sequencial)
+        if (paid) {
+          saldoHoje = r.saldoFinal;
+          jurosAbertoHoje = r.jurosEmAbertoNext;
+        }
+
+        // Recebidos
         if (paid) {
           totalRecebido += r.totalPago;
           pagas++;
+
+          if (penaltiesEnabled) {
+            const paidAtStr = state.paidAt[mesKey];
+            const paidAt = paidAtStr ? parseLocalDate(paidAtStr) : null;
+
+            if (paidAt) {
+              const { diasAtraso, encargos } = calcEncargosAtraso(r.totalPago, vencDate, paidAt);
+              if (diasAtraso > 0) atrasosCount++;
+              encargosRecebidos += encargos;
+            }
+          }
         }
 
         const manualClass = r.manual ? 'border-indigo-400 bg-indigo-50' : 'border-slate-100 bg-white';
-        const extraVal = (state.extraCents[String(r.mes)] ?? 0);
+        const extraVal = (state.extraCents[mesKey] ?? 0);
+        const paidAtVal = state.paidAt[mesKey] ?? '';
+
+        // Destaque quando pagamento < juros devido (não amortiza)
+        const semAmort = (r.amortizacao === 0 && r.totalPago > 0 && r.jurosPago === r.totalPago);
+        const badgeAmort = semAmort
+          ? `<span class="inline-flex text-[9px] font-bold px-2 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-100">pagou só juros</span>`
+          : '';
 
         htmlRows.push(`
           <tr class="${paid ? 'bg-emerald-50/50' : ''} transition-all">
             <td class="p-4">
               <span class="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">${r.mes}ª PARCELA</span><br>
               <span class="font-bold text-slate-700 text-xs">${venc}</span>
+              <div class="mt-2">${badgeAmort}</div>
             </td>
 
             <td class="p-4 text-center">
@@ -491,7 +687,10 @@
             </td>
 
             <td class="p-4 text-right">
-              <span class="text-[9px] text-slate-400 font-medium">Juros: ${fmt(r.juros)}</span><br>
+              <span class="text-[9px] text-slate-400 font-medium">Juros (corr): ${fmt(r.jurosCorrente)}</span><br>
+              <span class="text-[9px] text-slate-400 font-medium">Juros em aberto: ${fmt(r.jurosEmAbertoPrev)}</span><br>
+              <span class="text-[9px] text-slate-400 font-medium">Juros devido: ${fmt(r.jurosDevido)}</span><br>
+              <span class="text-[9px] text-slate-400 font-medium">Pago em juros: ${fmt(r.jurosPago)}</span><br>
               <span class="text-[9px] text-slate-400 font-medium">Amort: ${fmt(r.amortizacao)}</span><br>
               <span class="font-bold text-slate-900 text-sm">Saldo: ${fmt(r.saldoFinal)}</span>
             </td>
@@ -499,6 +698,13 @@
             <td class="p-4 text-center no-print">
               <input data-role="pago" data-mes="${r.mes}" type="checkbox" ${paid ? 'checked' : ''}
                 class="w-5 h-5 accent-emerald-500 rounded cursor-pointer">
+
+              <div class="mt-2 ${paid ? '' : 'hidden'}" data-paidwrap="${r.mes}">
+                <div class="text-[9px] text-slate-400 font-bold mb-1">Pago em</div>
+                <input data-role="paidAt" data-mes="${r.mes}" type="date"
+                  value="${paidAtVal}"
+                  class="text-[10px] p-2 border border-slate-200 rounded-lg bg-white font-bold">
+              </div>
             </td>
           </tr>
         `);
@@ -506,29 +712,45 @@
 
       dom.tabelaCorpo.innerHTML = htmlRows.join('');
 
+      // Info de atraso
+      if (penaltiesEnabled) {
+        dom.atrasoInfo.classList.remove('hidden');
+        dom.atrasoInfo.textContent = `ENCARGOS (multa/mora) ATIVOS • Atrasos detectados: ${atrasosCount}`;
+      } else {
+        dom.atrasoInfo.classList.add('hidden');
+      }
+
       // KPIs
       dom.kpiJuros.textContent = fmt(jurosTotal);
-      dom.kpiRecebido.textContent = fmt(totalRecebido);
-
-      // saldo hoje: simula abatendo os "pagos"
-      // (recalcula cronograma, mas aplicando pagamentos efetivos só nos pagos)
-      // aqui a aproximação é: saldoFinal do último mês pago na projeção
-      let saldoHoje = state.capitalCents;
-      for (const r of rows) {
-        if (!state.statusPago[String(r.mes)]) break;
-        saldoHoje = r.saldoFinal;
-      }
       dom.kpiSaldo.textContent = fmt(saldoHoje);
+      dom.kpiJurosAberto.textContent = fmt(jurosAbertoHoje);
 
-      const perc = totalDevido > 0 ? (totalRecebido / totalDevido) * 100 : 0;
-      dom.kpiBar.style.width = `${clamp(perc, 0, 100)}%`;
-      dom.kpiProgresso.textContent = `${Math.round(perc)}%`;
-      dom.kpiRestante.textContent = `${fmt(Math.max(0, totalDevido - totalRecebido))} restantes`;
+      // total recebido inclui encargos (se configurado)
+      dom.kpiRecebido.textContent = fmt(totalRecebido + encargosRecebidos);
       dom.kpiPagas.textContent = `${pagas}/${rows.length} parcelas`;
 
-      // Whats text
+      // Progresso: usa "devido projetado" (sem multas) + juros em aberto final (porque ainda falta pagar)
+      const jurosAbertoFinal = rows.length ? rows[rows.length - 1].jurosEmAbertoNext : 0;
+      const totalDevidoAjustado = totalDevidoProjetado + jurosAbertoFinal;
+
+      const perc = totalDevidoAjustado > 0 ? ((totalRecebido) / totalDevidoAjustado) * 100 : 0;
+      dom.kpiBar.style.width = `${clamp(perc, 0, 100)}%`;
+      dom.kpiProgresso.textContent = `${Math.round(perc)}%`;
+      dom.kpiRestante.textContent = `${fmt(Math.max(0, totalDevidoAjustado - totalRecebido))} restantes`;
+
+      // Aviso se estendeu
+      if (state.sistema === 'price' && state.recalcMode === 'keep_payment' && rows.length > state.prazoMeses) {
+        showWarn(`Prazo estendido para ${rows.length} meses (manter parcela).`);
+      } else {
+        // mantém warnings de data
+        const d = parseLocalDate(state.dataInicio);
+        if (d) showWarn('');
+      }
+
+      // Whats summary
       dom.btnWhats.dataset.prog = `${Math.round(perc)}%`;
-      dom.btnWhats.dataset.rest = `${fmt(Math.max(0, totalDevido - totalRecebido))}`;
+      dom.btnWhats.dataset.rest = `${fmt(Math.max(0, totalDevidoAjustado - totalRecebido))}`;
+      dom.btnWhats.dataset.ja = `${fmt(jurosAbertoHoje)}`;
     }
 
     const renderDebounced = debounce(render, 250);
@@ -536,16 +758,19 @@
     /***********************
      * Events
      ***********************/
-    // top inputs (debounced)
     ['input', 'change'].forEach(evt => {
       dom.capital.addEventListener(evt, renderDebounced);
       dom.taxa.addEventListener(evt, renderDebounced);
       dom.prazo.addEventListener(evt, renderDebounced);
       dom.dataInicio.addEventListener(evt, renderDebounced);
       dom.sistema.addEventListener(evt, renderDebounced);
+      dom.recalcMode.addEventListener(evt, renderDebounced);
+      dom.multaPct.addEventListener(evt, renderDebounced);
+      dom.jurosMoraPctAm.addEventListener(evt, renderDebounced);
+      dom.carenciaDias.addEventListener(evt, renderDebounced);
+      dom.maxMeses.addEventListener(evt, renderDebounced);
     });
 
-    // table delegation
     dom.tabelaCorpo.addEventListener('change', (e) => {
       const t = e.target;
       const role = t.getAttribute('data-role');
@@ -554,6 +779,24 @@
 
       if (role === 'pago') {
         state.statusPago[mes] = !!t.checked;
+
+        // default paidAt = hoje se marcou pago e não tinha data
+        if (state.statusPago[mes] && !state.paidAt[mes]) {
+          state.paidAt[mes] = todayISO();
+        }
+        if (!state.statusPago[mes]) {
+          delete state.paidAt[mes];
+        }
+
+        saveState();
+        render();
+        return;
+      }
+
+      if (role === 'paidAt') {
+        const v = String(t.value ?? '').trim();
+        if (!v) delete state.paidAt[mes];
+        else state.paidAt[mes] = v;
         saveState();
         render();
         return;
@@ -562,7 +805,7 @@
       if (role === 'parcela') {
         const cents = toCents(t.value);
         // se zerar/apagar, remove override
-        if (!t.value || cents <= 0) delete state.parcelaManualCents[mes];
+        if (!String(t.value ?? '').trim() || cents <= 0) delete state.parcelaManualCents[mes];
         else state.parcelaManualCents[mes] = cents;
         saveState();
         render();
@@ -571,7 +814,7 @@
 
       if (role === 'extra') {
         const cents = toCents(t.value);
-        if (!t.value || cents <= 0) delete state.extraCents[mes];
+        if (!String(t.value ?? '').trim() || cents <= 0) delete state.extraCents[mes];
         else state.extraCents[mes] = cents;
         saveState();
         render();
@@ -579,7 +822,6 @@
       }
     });
 
-    // reset
     dom.btnReset.addEventListener('click', () => {
       if (!confirm('Deseja resetar todos os dados?')) return;
       localStorage.removeItem(STORAGE_KEY);
@@ -588,31 +830,41 @@
       render();
     });
 
-    // print
     dom.btnPrint.addEventListener('click', () => window.print());
 
-    // export CSV
     dom.btnExportCSV.addEventListener('click', () => {
       const { rows } = buildSchedule();
       const start = parseLocalDate(state.dataInicio);
       if (!start) return alert('Defina uma data de início válida.');
 
-      const header = ['Mes','Vencimento','Parcela','Extra','TotalPago','Juros','Amortizacao','SaldoFinal','Pago?'];
+      const header = [
+        'Mes','Vencimento','Parcela','Extra','TotalPago',
+        'JurosCorrente','JurosAbertoPrev','JurosDevido','JurosPago','JurosAbertoNext',
+        'Amortizacao','SaldoFinal','Pago','PagoEm'
+      ];
       const lines = [header.join(';')];
 
       for (const r of rows) {
         const venc = addMonths(start, r.mes - 1).toLocaleDateString('pt-BR');
-        const paid = !!state.statusPago[String(r.mes)];
+        const k = String(r.mes);
+        const paid = !!state.statusPago[k];
         lines.push([
           r.mes,
           venc,
           fromCents(r.parcela).toFixed(2),
-          fromCents(state.extraCents[String(r.mes)] ?? 0).toFixed(2),
+          fromCents(state.extraCents[k] ?? 0).toFixed(2),
           fromCents(r.totalPago).toFixed(2),
-          fromCents(r.juros).toFixed(2),
+
+          fromCents(r.jurosCorrente).toFixed(2),
+          fromCents(r.jurosEmAbertoPrev).toFixed(2),
+          fromCents(r.jurosDevido).toFixed(2),
+          fromCents(r.jurosPago).toFixed(2),
+          fromCents(r.jurosEmAbertoNext).toFixed(2),
+
           fromCents(r.amortizacao).toFixed(2),
           fromCents(r.saldoFinal).toFixed(2),
-          paid ? 'SIM' : 'NAO'
+          paid ? 'SIM' : 'NAO',
+          state.paidAt[k] ?? ''
         ].join(';'));
       }
 
@@ -627,7 +879,6 @@
       URL.revokeObjectURL(url);
     });
 
-    // export JSON
     dom.btnExportJSON.addEventListener('click', () => {
       const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -640,7 +891,6 @@
       URL.revokeObjectURL(url);
     });
 
-    // import JSON
     dom.fileImportJSON.addEventListener('change', async (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
@@ -648,14 +898,14 @@
         const txt = await file.text();
         const parsed = JSON.parse(txt);
 
-        // merge + valida
         state = {
           ...structuredClone(DEFAULT_STATE),
           ...parsed,
           statusPago: parsed.statusPago ?? {},
+          paidAt: parsed.paidAt ?? {},
           parcelaManualCents: parsed.parcelaManualCents ?? {},
           extraCents: parsed.extraCents ?? {},
-          version: 4
+          version: '4.2'
         };
 
         saveState();
@@ -669,16 +919,21 @@
       }
     });
 
-    // Whats
     dom.btnWhats.addEventListener('click', () => {
       const prog = dom.btnWhats.dataset.prog ?? '0%';
       const rest = dom.btnWhats.dataset.rest ?? 'R$ 0,00';
+      const jurosAberto = dom.btnWhats.dataset.ja ?? 'R$ 0,00';
+      const multasAtivas = hasAnyPenaltyConfig() ? 'sim' : 'não';
+
       const texto =
         `Resumo SmartLoan:\n` +
         `📊 Quitado: ${prog}\n` +
         `💰 Restante: ${rest}\n` +
-        `🧾 Sistema: ${state.sistema.toUpperCase()}\n\n` +
+        `🧾 Sistema: ${state.sistema.toUpperCase()} | Recalcular: ${state.recalcMode}\n` +
+        `⚠️ Multas/Mora ativas: ${multasAtivas}\n` +
+        `🟠 Juros em aberto: ${jurosAberto}\n\n` +
         `Cronograma gerado pelo SmartLoan.`;
+
       window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
     });
 
