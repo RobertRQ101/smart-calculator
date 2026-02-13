@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartLoan v4.2 — Recalculo + Multas opcionais + Juros primeiro</title>
+  <title>SmartLoan v4.3 — Mobile + WhatsApp Template</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
@@ -13,101 +13,109 @@
   </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800 pb-10">
-  <nav class="p-4 bg-white shadow-sm border-b no-print sticky top-0 z-50">
-    <div class="flex justify-between items-center max-w-6xl mx-auto">
-      <span class="text-xl font-bold text-indigo-600 tracking-tight">
-        SmartLoan <span class="text-slate-400 font-light italic text-sm">v4.2</span>
-      </span>
+<body class="bg-slate-50 text-slate-800 pb-24">
+  <!-- NAV (mobile-friendly) -->
+  <nav class="p-3 md:p-4 bg-white shadow-sm border-b no-print sticky top-0 z-50">
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-2 max-w-6xl mx-auto">
+      <div class="flex justify-between items-center">
+        <span class="text-lg md:text-xl font-bold text-indigo-600 tracking-tight">
+          SmartLoan <span class="text-slate-400 font-light italic text-xs md:text-sm">v4.3</span>
+        </span>
 
-      <div class="flex gap-2 flex-wrap justify-end">
+        <button id="btnPrint"
+          class="md:hidden text-[11px] bg-slate-800 text-white px-3 py-2 rounded-lg font-bold hover:bg-slate-700 transition uppercase">
+          PDF
+        </button>
+      </div>
+
+      <div class="flex gap-2 flex-wrap">
         <button id="btnReset"
-          class="text-[10px] bg-red-50 text-red-600 font-bold px-3 py-2 rounded-lg border border-red-100 hover:bg-red-200 transition">
+          class="text-[11px] bg-red-50 text-red-600 font-bold px-3 py-2 rounded-lg border border-red-100 hover:bg-red-200 transition">
           RESETAR
         </button>
 
         <button id="btnExportCSV"
-          class="text-[10px] bg-slate-50 text-slate-800 font-bold px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 transition">
-          Exportar CSV
+          class="text-[11px] bg-slate-50 text-slate-800 font-bold px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 transition">
+          CSV
         </button>
 
         <button id="btnExportJSON"
-          class="text-[10px] bg-slate-50 text-slate-800 font-bold px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 transition">
-          Exportar JSON
+          class="text-[11px] bg-slate-50 text-slate-800 font-bold px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 transition">
+          JSON
         </button>
 
         <label
-          class="text-[10px] bg-slate-50 text-slate-800 font-bold px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 transition cursor-pointer">
-          Importar JSON
+          class="text-[11px] bg-slate-50 text-slate-800 font-bold px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-100 transition cursor-pointer">
+          Importar
           <input id="fileImportJSON" type="file" accept="application/json" class="hidden" />
         </label>
 
-        <button id="btnPrint"
-          class="text-[10px] bg-slate-800 text-white px-4 py-2 rounded-lg font-bold hover:bg-slate-700 transition uppercase">
+        <button id="btnPrintDesktop"
+          class="hidden md:inline-flex text-[11px] bg-slate-800 text-white px-4 py-2 rounded-lg font-bold hover:bg-slate-700 transition uppercase">
           Exportar PDF
         </button>
       </div>
     </div>
   </nav>
 
-  <main class="p-4 max-w-6xl mx-auto space-y-6">
+  <main class="p-3 md:p-4 max-w-6xl mx-auto space-y-4 md:space-y-6">
 
-    <!-- KPIs -->
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-      <div class="bg-indigo-600 p-6 rounded-3xl text-white shadow-xl">
+    <!-- KPIs (2 cols on mobile) -->
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
+      <div class="col-span-2 lg:col-span-1 bg-indigo-600 p-5 md:p-6 rounded-3xl text-white shadow-xl">
         <p class="text-[10px] uppercase opacity-70 font-bold tracking-widest">Juros Acumulado</p>
-        <h2 id="kpiJuros" class="text-3xl font-bold">R$ 0,00</h2>
-        <p id="kpiSistema" class="text-[10px] mt-2 opacity-80 font-bold tracking-widest">SISTEMA: PRICE</p>
+        <h2 id="kpiJuros" class="text-2xl md:text-3xl font-bold">R$ 0,00</h2>
+        <p id="kpiSistema" class="text-[10px] mt-2 opacity-80 font-bold tracking-widest">SISTEMA</p>
       </div>
 
-      <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-center">
-        <p class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Progresso (Recebido)</p>
+      <div class="bg-white p-5 md:p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-center col-span-2 lg:col-span-1">
+        <p class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Progresso</p>
         <div class="flex items-end gap-2">
-          <h2 id="kpiProgresso" class="text-3xl font-extrabold text-slate-900">0%</h2>
-          <p id="kpiRestante" class="text-xs font-bold text-indigo-600 mb-1">R$ 0,00 restantes</p>
+          <h2 id="kpiProgresso" class="text-2xl md:text-3xl font-extrabold text-slate-900">0%</h2>
+          <p id="kpiRestante" class="text-xs font-bold text-indigo-600 mb-1 truncate">R$ 0,00 restantes</p>
         </div>
         <div class="w-full bg-slate-100 h-2 rounded-full mt-3 overflow-hidden">
           <div id="kpiBar" class="bg-indigo-600 h-full w-0 transition-all duration-500"></div>
         </div>
       </div>
 
-      <div class="bg-emerald-50 p-6 rounded-3xl border border-emerald-100 shadow-sm flex flex-col justify-center text-center">
-        <p class="text-[10px] uppercase text-emerald-600 font-bold tracking-widest">Total Recebido</p>
-        <h2 id="kpiRecebido" class="text-3xl font-bold text-emerald-700">R$ 0,00</h2>
-        <p id="kpiPagas" class="text-[10px] mt-2 text-emerald-700 font-bold tracking-widest">0/0 parcelas</p>
+      <div class="bg-emerald-50 p-5 md:p-6 rounded-3xl border border-emerald-100 shadow-sm flex flex-col justify-center text-center">
+        <p class="text-[10px] uppercase text-emerald-600 font-bold tracking-widest">Recebido</p>
+        <h2 id="kpiRecebido" class="text-2xl md:text-3xl font-bold text-emerald-700">R$ 0,00</h2>
+        <p id="kpiPagas" class="text-[10px] mt-2 text-emerald-700 font-bold tracking-widest">0/0</p>
       </div>
 
-      <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-center text-center">
-        <p class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Saldo Devedor</p>
-        <h2 id="kpiSaldo" class="text-3xl font-bold text-slate-900">R$ 0,00</h2>
-        <p class="text-[10px] mt-2 text-slate-400 font-bold tracking-widest">principal (sem juros em aberto)</p>
+      <div class="bg-white p-5 md:p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-center text-center">
+        <p class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Saldo</p>
+        <h2 id="kpiSaldo" class="text-2xl md:text-3xl font-bold text-slate-900">R$ 0,00</h2>
+        <p class="text-[10px] mt-2 text-slate-400 font-bold tracking-widest">principal</p>
       </div>
 
-      <div class="bg-amber-50 p-6 rounded-3xl border border-amber-100 shadow-sm flex flex-col justify-center text-center">
-        <p class="text-[10px] uppercase text-amber-700 font-bold tracking-widest">Juros em Aberto</p>
-        <h2 id="kpiJurosAberto" class="text-3xl font-bold text-amber-800">R$ 0,00</h2>
-        <p class="text-[10px] mt-2 text-amber-700 font-bold tracking-widest">carrega para próximos meses</p>
+      <div class="bg-amber-50 p-5 md:p-6 rounded-3xl border border-amber-100 shadow-sm flex flex-col justify-center text-center">
+        <p class="text-[10px] uppercase text-amber-700 font-bold tracking-widest">Juros Aberto</p>
+        <h2 id="kpiJurosAberto" class="text-2xl md:text-3xl font-bold text-amber-800">R$ 0,00</h2>
+        <p class="text-[10px] mt-2 text-amber-700 font-bold tracking-widest">carrega</p>
       </div>
     </div>
 
-    <!-- Inputs -->
-    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm no-print grid grid-cols-2 md:grid-cols-12 gap-4">
+    <!-- Form inputs -->
+    <div class="bg-white p-4 md:p-6 rounded-2xl border border-slate-200 shadow-sm no-print grid grid-cols-2 md:grid-cols-12 gap-3 md:gap-4">
       <div class="md:col-span-2">
         <label class="text-[10px] font-bold text-slate-400 uppercase">Capital (R$)</label>
         <input type="number" id="capital" min="0" step="0.01"
-          class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg">
+          class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-base md:text-lg">
       </div>
 
       <div class="md:col-span-2">
         <label class="text-[10px] font-bold text-slate-400 uppercase">Juros (% am)</label>
         <input type="number" id="taxa" min="0" step="0.01"
-          class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg text-indigo-600">
+          class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-base md:text-lg text-indigo-600">
       </div>
 
       <div class="md:col-span-2">
         <label class="text-[10px] font-bold text-slate-400 uppercase">Prazo (Meses)</label>
         <input type="number" id="prazo" min="1" step="1"
-          class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-lg">
+          class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-base md:text-lg">
       </div>
 
       <div class="md:col-span-2">
@@ -120,8 +128,8 @@
         <label class="text-[10px] font-bold text-slate-400 uppercase">Sistema</label>
         <select id="sistema"
           class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold">
-          <option value="price">PRICE (parcela fixa)</option>
-          <option value="sac">SAC (amortização fixa)</option>
+          <option value="price">PRICE</option>
+          <option value="sac">SAC</option>
         </select>
       </div>
 
@@ -129,33 +137,33 @@
         <label class="text-[10px] font-bold text-slate-400 uppercase">Recalcular (PRICE)</label>
         <select id="recalcMode"
           class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold">
-          <option value="keep_payment">Manter parcela (recalcula prazo)</option>
-          <option value="keep_term">Manter prazo (recalcula parcela)</option>
+          <option value="keep_payment">Manter parcela</option>
+          <option value="keep_term">Manter prazo</option>
           <option value="none">Não recalcular</option>
         </select>
       </div>
 
-      <!-- Multas opcionais (se vazio, não aplica) -->
+      <!-- Optional penalties -->
       <div class="md:col-span-2">
-        <label class="text-[10px] font-bold text-slate-400 uppercase">Multa (% única) — opcional</label>
+        <label class="text-[10px] font-bold text-slate-400 uppercase">Multa % (opcional)</label>
         <input id="multaPct" type="number" min="0" step="0.01" placeholder="ex.: 2"
           class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold">
       </div>
 
       <div class="md:col-span-2">
-        <label class="text-[10px] font-bold text-slate-400 uppercase">Mora (% a.m.) — opcional</label>
+        <label class="text-[10px] font-bold text-slate-400 uppercase">Mora % a.m. (opcional)</label>
         <input id="jurosMoraPctAm" type="number" min="0" step="0.01" placeholder="ex.: 1"
           class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold">
       </div>
 
       <div class="md:col-span-2">
-        <label class="text-[10px] font-bold text-slate-400 uppercase">Carência (dias) — opcional</label>
+        <label class="text-[10px] font-bold text-slate-400 uppercase">Carência dias (opcional)</label>
         <input id="carenciaDias" type="number" min="0" step="1" placeholder="ex.: 0"
           class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold">
       </div>
 
       <div class="md:col-span-6">
-        <label class="text-[10px] font-bold text-slate-400 uppercase">Limite de meses (para manter parcela)</label>
+        <label class="text-[10px] font-bold text-slate-400 uppercase">Limite de meses (manter parcela)</label>
         <input id="maxMeses" type="number" min="1" step="1"
           class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold">
       </div>
@@ -165,10 +173,57 @@
       </div>
     </div>
 
-    <!-- Table -->
+    <!-- WhatsApp Template -->
+    <div class="bg-white p-4 md:p-6 rounded-2xl border border-slate-200 shadow-sm no-print space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-xs font-bold text-slate-500 uppercase">Mensagem WhatsApp (Cliente)</h3>
+        <span class="text-[10px] font-bold text-emerald-700 px-3 py-1 bg-emerald-50 rounded-full">template pronto</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+        <div class="md:col-span-4">
+          <label class="text-[10px] font-bold text-slate-400 uppercase">Nome do cliente</label>
+          <input id="clienteNome" type="text" placeholder="ex.: João Silva"
+            class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 font-bold">
+        </div>
+
+        <div class="md:col-span-4">
+          <label class="text-[10px] font-bold text-slate-400 uppercase">WhatsApp (opcional)</label>
+          <input id="clientePhone" type="tel" placeholder="ex.: 5511999999999"
+            class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 font-bold">
+          <p class="text-[10px] text-slate-400 mt-1">Somente números, com DDI/DDD (ex.: 55...)</p>
+        </div>
+
+        <div class="md:col-span-4">
+          <label class="text-[10px] font-bold text-slate-400 uppercase">Assinatura (opcional)</label>
+          <input id="assinatura" type="text" placeholder="ex.: Robert — Bankme"
+            class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 font-bold">
+        </div>
+
+        <div class="md:col-span-12">
+          <label class="text-[10px] font-bold text-slate-400 uppercase">Prévia da mensagem</label>
+          <textarea id="whatsPreview" rows="8" readonly
+            class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none font-semibold text-sm"></textarea>
+        </div>
+
+        <div class="md:col-span-12 flex flex-col md:flex-row gap-2">
+          <button id="btnCopy"
+            class="w-full md:w-auto bg-slate-900 text-white px-4 py-3 rounded-xl font-bold hover:bg-slate-800 transition active:scale-[0.99]">
+            📋 Copiar mensagem
+          </button>
+
+          <button id="btnWhatsSend"
+            class="w-full md:w-auto bg-emerald-500 text-white px-4 py-3 rounded-xl font-bold hover:bg-emerald-600 transition active:scale-[0.99]">
+            💬 Enviar no WhatsApp
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHEDULE (desktop table / mobile cards) -->
     <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
       <div class="p-4 bg-slate-50/50 border-b border-slate-100 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
-        <h3 class="text-xs font-bold text-slate-500 uppercase">Fluxo de Caixa Detalhado</h3>
+        <h3 class="text-xs font-bold text-slate-500 uppercase">Cronograma</h3>
         <div class="flex gap-2 items-center flex-wrap">
           <span id="parcelaInfo" class="text-[10px] font-bold text-indigo-600 px-3 py-1 bg-indigo-50 rounded-full"></span>
           <span id="extrasInfo" class="text-[10px] font-bold text-emerald-700 px-3 py-1 bg-emerald-50 rounded-full"></span>
@@ -176,13 +231,17 @@
         </div>
       </div>
 
-      <div class="overflow-x-auto">
+      <!-- Mobile cards -->
+      <div class="md:hidden p-3 space-y-3" id="cardsMobile"></div>
+
+      <!-- Desktop table -->
+      <div class="hidden md:block overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead class="bg-slate-50 text-slate-400 uppercase text-[9px] tracking-widest">
             <tr>
               <th class="p-4">Vencimento</th>
-              <th class="p-4 text-center">Parcela (R$)</th>
-              <th class="p-4 text-center">Extra (R$)</th>
+              <th class="p-4 text-center">Parcela</th>
+              <th class="p-4 text-center">Extra</th>
               <th class="p-4 text-right">Juros / Saldo</th>
               <th class="p-4 text-center no-print">Pago?</th>
             </tr>
@@ -191,757 +250,794 @@
         </table>
       </div>
     </div>
-
-    <button id="btnWhats"
-      class="no-print w-full bg-emerald-500 text-white p-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg hover:bg-emerald-600 transition active:scale-95">
-      💬 Compartilhar via WhatsApp
-    </button>
   </main>
 
-  <script>
-    /***********************
-     * Utils
-     ***********************/
-    const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-    const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+  <!-- Mobile fixed action bar -->
+  <div class="no-print fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-3 md:hidden">
+    <button id="btnWhatsSendMobile"
+      class="w-full bg-emerald-500 text-white p-4 rounded-2xl font-bold shadow-lg hover:bg-emerald-600 transition active:scale-[0.99]">
+      💬 Enviar resumo no WhatsApp
+    </button>
+  </div>
 
-    function toCents(v) {
-      if (v === null || v === undefined) return 0;
-      const s = String(v).trim();
-      if (!s) return 0;
-      const n = Number(s);
-      if (!Number.isFinite(n)) return 0;
-      return Math.round(n * 100);
-    }
-    function fromCents(c) { return (c / 100); }
-    function fmt(cents) { return BRL.format(fromCents(cents)); }
+<script>
+/***********************
+ * Utils
+ ***********************/
+const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 
-    // yyyy-mm-dd -> Date(y, m-1, d, 12)
-    function parseLocalDate(dateStr) {
-      if (!dateStr) return null;
-      const [y, m, d] = dateStr.split('-').map(Number);
-      if (!y || !m || !d) return null;
-      return new Date(y, m - 1, d, 12, 0, 0);
-    }
-    function addMonths(date, months) {
-      const d = new Date(date.getTime());
-      d.setMonth(d.getMonth() + months);
-      return d;
-    }
-    function debounce(fn, ms = 250) {
-      let t;
-      return (...args) => {
-        clearTimeout(t);
-        t = setTimeout(() => fn(...args), ms);
-      };
-    }
+function toCents(v) {
+  if (v === null || v === undefined) return 0;
+  const s = String(v).trim();
+  if (!s) return 0;
+  const n = Number(s);
+  if (!Number.isFinite(n)) return 0;
+  return Math.round(n * 100);
+}
+function fromCents(c) { return (c / 100); }
+function fmt(cents) { return BRL.format(fromCents(cents)); }
 
-    // Date difference in whole days (local-safe)
-    function daysBetween(d1, d2) {
-      const ms = 24 * 60 * 60 * 1000;
-      const a = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate(), 12).getTime();
-      const b = new Date(d2.getFullYear(), d2.getMonth(), d2.getDate(), 12).getTime();
-      return Math.floor((b - a) / ms);
-    }
+// yyyy-mm-dd -> Date(y, m-1, d, 12)
+function parseLocalDate(dateStr) {
+  if (!dateStr) return null;
+  const [y, m, d] = dateStr.split('-').map(Number);
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d, 12, 0, 0);
+}
+function addMonths(date, months) {
+  const d = new Date(date.getTime());
+  d.setMonth(d.getMonth() + months);
+  return d;
+}
+function debounce(fn, ms = 250) {
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+function daysBetween(d1, d2) {
+  const ms = 24 * 60 * 60 * 1000;
+  const a = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate(), 12).getTime();
+  const b = new Date(d2.getFullYear(), d2.getMonth(), d2.getDate(), 12).getTime();
+  return Math.floor((b - a) / ms);
+}
+function todayISO() {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
 
-    /***********************
-     * State
-     ***********************/
-    const STORAGE_KEY = 'smartLoanConfig.v4_2';
+/***********************
+ * State
+ ***********************/
+const STORAGE_KEY = 'smartLoanConfig.v4_3';
 
-    const DEFAULT_STATE = {
-      version: '4.2',
-      capitalCents: 5000_00,
-      taxaPctAm: 3.2,
-      prazoMeses: 12,
-      dataInicio: '2026-03-07',
-      sistema: 'price',        // 'price' | 'sac'
-      recalcMode: 'keep_payment', // keep_payment | keep_term | none
-      maxMeses: 240,
+const DEFAULT_STATE = {
+  version: '4.3',
+  capitalCents: 5000_00,
+  taxaPctAm: 3.2,
+  prazoMeses: 12,
+  dataInicio: '2026-03-07',
+  sistema: 'price',
+  recalcMode: 'keep_payment',
+  maxMeses: 240,
 
-      statusPago: {},           // { "1": true }
-      paidAt: {},               // { "1": "2026-03-07" } (só necessário se multas configuradas, mas pode existir sempre)
-      parcelaManualCents: {},   // override apenas parcela
-      extraCents: {},           // extra amortiza principal
+  statusPago: {},
+  paidAt: {},
+  parcelaManualCents: {},
+  extraCents: {},
 
-      // Multas opcionais: se null/"" => não aplica
-      multaPct: null,           // % única (ex: 2)
-      jurosMoraPctAm: null,     // % ao mês (ex: 1)
-      carenciaDias: null        // dias
+  multaPct: null,
+  jurosMoraPctAm: null,
+  carenciaDias: null,
+
+  // WhatsApp/client
+  clienteNome: '',
+  clientePhone: '',
+  assinatura: ''
+};
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return structuredClone(DEFAULT_STATE);
+    const parsed = JSON.parse(raw);
+    return {
+      ...structuredClone(DEFAULT_STATE),
+      ...parsed,
+      statusPago: parsed.statusPago ?? {},
+      paidAt: parsed.paidAt ?? {},
+      parcelaManualCents: parsed.parcelaManualCents ?? {},
+      extraCents: parsed.extraCents ?? {}
     };
+  } catch {
+    return structuredClone(DEFAULT_STATE);
+  }
+}
 
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return structuredClone(DEFAULT_STATE);
-        const parsed = JSON.parse(raw);
-        return {
-          ...structuredClone(DEFAULT_STATE),
-          ...parsed,
-          statusPago: parsed.statusPago ?? {},
-          paidAt: parsed.paidAt ?? {},
-          parcelaManualCents: parsed.parcelaManualCents ?? {},
-          extraCents: parsed.extraCents ?? {}
-        };
-      } catch {
-        return structuredClone(DEFAULT_STATE);
+let state = loadState();
+function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+/***********************
+ * Finance
+ ***********************/
+function pmtPriceCents(principalCents, taxaMensal, n) {
+  if (n <= 0) return 0;
+  if (taxaMensal <= 0) return Math.round(principalCents / n);
+  const P = principalCents / 100;
+  const i = taxaMensal;
+  const pmt = (P * (i * Math.pow(1 + i, n))) / (Math.pow(1 + i, n) - 1);
+  return Math.round(pmt * 100);
+}
+function hasAnyPenaltyConfig() {
+  const mp = (state.multaPct !== null && state.multaPct !== '' && Number.isFinite(Number(state.multaPct)));
+  const jm = (state.jurosMoraPctAm !== null && state.jurosMoraPctAm !== '' && Number.isFinite(Number(state.jurosMoraPctAm)));
+  return mp || jm;
+}
+function calcEncargosAtraso(baseCents, dueDate, paidDate) {
+  const multaPct = (state.multaPct === null || state.multaPct === '' || !Number.isFinite(Number(state.multaPct))) ? 0 : Number(state.multaPct);
+  const moraPctAm = (state.jurosMoraPctAm === null || state.jurosMoraPctAm === '' || !Number.isFinite(Number(state.jurosMoraPctAm))) ? 0 : Number(state.jurosMoraPctAm);
+  const carencia = (state.carenciaDias === null || state.carenciaDias === '' || !Number.isFinite(Number(state.carenciaDias))) ? 0 : Math.trunc(Number(state.carenciaDias));
+
+  let dias = Math.max(0, daysBetween(dueDate, paidDate) - Math.max(0, carencia));
+  if (dias <= 0 || (multaPct <= 0 && moraPctAm <= 0)) return { diasAtraso: 0, multa: 0, mora: 0, encargos: 0 };
+
+  const multa = multaPct > 0 ? Math.round(baseCents * (multaPct / 100)) : 0;
+  const moraDia = (moraPctAm / 100) / 30;
+  const mora = moraPctAm > 0 ? Math.round(baseCents * moraDia * dias) : 0;
+
+  return { diasAtraso: dias, multa, mora, encargos: multa + mora };
+}
+
+// Juros primeiro, juros em aberto carrega
+function buildSchedule() {
+  const capital = state.capitalCents;
+  const taxaMensal = (Number(state.taxaPctAm) || 0) / 100;
+  const prazoOriginal = Math.max(1, Number(state.prazoMeses) || 1);
+  const sistema = state.sistema;
+  const recalcMode = state.recalcMode ?? 'keep_payment';
+  const maxMeses = clamp(Number(state.maxMeses ?? 240), 1, 600);
+
+  let saldo = capital;
+  let jurosEmAberto = 0;
+  const rows = [];
+
+  const amortSAC = sistema === 'sac' ? Math.floor(capital / prazoOriginal) : 0;
+
+  let pmtAtual = sistema === 'price'
+    ? pmtPriceCents(capital, taxaMensal, prazoOriginal)
+    : 0;
+
+  let jurosTotal = 0;
+  let extraTotal = 0;
+
+  const limite = (sistema === 'price' && recalcMode === 'keep_payment') ? maxMeses : prazoOriginal;
+
+  for (let mes = 1; mes <= limite; mes++) {
+    if (saldo <= 0 && jurosEmAberto <= 0) break;
+
+    const jurosCorrente = Math.round((saldo / 100) * taxaMensal * 100);
+    jurosTotal += jurosCorrente;
+
+    const extra = clamp(state.extraCents[String(mes)] ?? 0, 0, 1_000_000_000_00);
+    extraTotal += extra;
+
+    let parcelaBase;
+    if (sistema === 'price') {
+      parcelaBase = pmtAtual;
+    } else {
+      const amortPlano = (mes === prazoOriginal) ? saldo : Math.min(amortSAC, saldo);
+      parcelaBase = jurosCorrente + amortPlano;
+    }
+
+    const manual = state.parcelaManualCents[String(mes)];
+    const parcela = (manual !== undefined) ? clamp(manual, 0, 1_000_000_000_00) : parcelaBase;
+
+    const jurosDevido = jurosCorrente + jurosEmAberto;
+
+    let totalPago = parcela + extra;
+    const maxTotal = saldo + jurosDevido;
+    if (totalPago > maxTotal) totalPago = maxTotal;
+
+    const jurosPago = Math.min(totalPago, jurosDevido);
+    const amortizacao = Math.max(0, totalPago - jurosPago);
+
+    const saldoFinal = Math.max(0, saldo - amortizacao);
+    const jurosEmAbertoNext = Math.max(0, jurosDevido - jurosPago);
+
+    rows.push({
+      mes,
+      jurosCorrente,
+      jurosEmAbertoPrev: jurosEmAberto,
+      jurosDevido,
+      jurosPago,
+      jurosEmAbertoNext,
+
+      parcelaBase,
+      parcela,
+      extra,
+      totalPago,
+
+      amortizacao,
+      saldoInicial: saldo,
+      saldoFinal,
+      manual: manual !== undefined
+    });
+
+    saldo = saldoFinal;
+    jurosEmAberto = jurosEmAbertoNext;
+
+    if (sistema === 'price' && recalcMode !== 'none') {
+      const houveEdicao = (manual !== undefined) || extra > 0;
+      if (houveEdicao && recalcMode === 'keep_term') {
+        const restantes = Math.max(1, prazoOriginal - mes);
+        pmtAtual = pmtPriceCents(saldo, taxaMensal, restantes);
       }
     }
+  }
 
-    let state = loadState();
-    function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  return { rows, jurosTotal, extraTotal, pmtBase: pmtAtual, prazoOriginal };
+}
 
-    /***********************
-     * Finance
-     ***********************/
-    function pmtPriceCents(principalCents, taxaMensal, n) {
-      if (n <= 0) return 0;
-      if (taxaMensal <= 0) return Math.round(principalCents / n);
-      const P = principalCents / 100;
-      const i = taxaMensal;
-      const pmt = (P * (i * Math.pow(1 + i, n))) / (Math.pow(1 + i, n) - 1);
-      return Math.round(pmt * 100);
-    }
+/***********************
+ * DOM
+ ***********************/
+const el = (id) => document.getElementById(id);
+const dom = {
+  capital: el('capital'),
+  taxa: el('taxa'),
+  prazo: el('prazo'),
+  dataInicio: el('dataInicio'),
+  sistema: el('sistema'),
+  recalcMode: el('recalcMode'),
+  multaPct: el('multaPct'),
+  jurosMoraPctAm: el('jurosMoraPctAm'),
+  carenciaDias: el('carenciaDias'),
+  maxMeses: el('maxMeses'),
+  warn: el('warn'),
 
-    // Multas opcionais:
-    // - se multaPct vazio => 0
-    // - se jurosMoraPctAm vazio => 0
-    // - carência vazio => 0
-    function hasAnyPenaltyConfig() {
-      const mp = (state.multaPct !== null && state.multaPct !== '' && Number.isFinite(Number(state.multaPct)));
-      const jm = (state.jurosMoraPctAm !== null && state.jurosMoraPctAm !== '' && Number.isFinite(Number(state.jurosMoraPctAm)));
-      return mp || jm;
-    }
+  tabelaCorpo: el('tabelaCorpo'),
+  cardsMobile: el('cardsMobile'),
+  parcelaInfo: el('parcelaInfo'),
+  extrasInfo: el('extrasInfo'),
+  atrasoInfo: el('atrasoInfo'),
 
-    // Encargos por atraso calculados sobre o VALOR PAGO NO MÊS (totalPago do cronograma daquele mês).
-    // (Se preferir “somente sobre parcela”, troque baseCents para r.parcela)
-    function calcEncargosAtraso(baseCents, dueDate, paidDate) {
-      const multaPct = (state.multaPct === null || state.multaPct === '' || !Number.isFinite(Number(state.multaPct))) ? 0 : Number(state.multaPct);
-      const moraPctAm = (state.jurosMoraPctAm === null || state.jurosMoraPctAm === '' || !Number.isFinite(Number(state.jurosMoraPctAm))) ? 0 : Number(state.jurosMoraPctAm);
-      const carencia = (state.carenciaDias === null || state.carenciaDias === '' || !Number.isFinite(Number(state.carenciaDias))) ? 0 : Math.trunc(Number(state.carenciaDias));
+  kpiJuros: el('kpiJuros'),
+  kpiRecebido: el('kpiRecebido'),
+  kpiSaldo: el('kpiSaldo'),
+  kpiProgresso: el('kpiProgresso'),
+  kpiRestante: el('kpiRestante'),
+  kpiBar: el('kpiBar'),
+  kpiSistema: el('kpiSistema'),
+  kpiPagas: el('kpiPagas'),
+  kpiJurosAberto: el('kpiJurosAberto'),
 
-      let dias = Math.max(0, daysBetween(dueDate, paidDate) - Math.max(0, carencia));
-      if (dias <= 0 || (multaPct <= 0 && moraPctAm <= 0)) {
-        return { diasAtraso: 0, multa: 0, mora: 0, encargos: 0 };
-      }
+  // WhatsApp
+  clienteNome: el('clienteNome'),
+  clientePhone: el('clientePhone'),
+  assinatura: el('assinatura'),
+  whatsPreview: el('whatsPreview'),
+  btnCopy: el('btnCopy'),
+  btnWhatsSend: el('btnWhatsSend'),
+  btnWhatsSendMobile: el('btnWhatsSendMobile'),
 
-      const multa = multaPct > 0 ? Math.round(baseCents * (multaPct / 100)) : 0;
-      const moraDia = (moraPctAm / 100) / 30; // simples
-      const mora = moraPctAm > 0 ? Math.round(baseCents * moraDia * dias) : 0;
+  // Buttons
+  btnReset: el('btnReset'),
+  btnPrint: el('btnPrint'),
+  btnPrintDesktop: el('btnPrintDesktop'),
+  btnExportCSV: el('btnExportCSV'),
+  btnExportJSON: el('btnExportJSON'),
+  fileImportJSON: el('fileImportJSON'),
+};
 
-      return { diasAtraso: dias, multa, mora, encargos: multa + mora };
-    }
+function showWarn(msg) {
+  if (!msg) { dom.warn.classList.add('hidden'); dom.warn.textContent = ''; return; }
+  dom.warn.classList.remove('hidden');
+  dom.warn.textContent = `⚠️ ${msg}`;
+}
 
-    /**
-     * Cronograma com regra "juros primeiro" + "juros em aberto carrega":
-     * - jurosCorrente = saldo * taxa
-     * - jurosDevido = jurosCorrente + jurosEmAbertoAnterior
-     * - pagamento aplica primeiro em jurosDevido
-     * - só o excedente amortiza principal
-     * - juros não pagos viram jurosEmAbertoProximo
-     *
-     * Recalculo:
-     * - PRICE keep_payment: PMT fica fixa, prazo pode estender até quitar saldo e juros em aberto
-     * - PRICE keep_term: recalcula PMT para encerrar no prazo original
-     * - none: PMT base não muda
-     */
-    function buildSchedule() {
-      const capital = state.capitalCents;
-      const taxaMensal = (Number(state.taxaPctAm) || 0) / 100;
-      const prazoOriginal = Math.max(1, Number(state.prazoMeses) || 1);
-      const sistema = state.sistema;
-      const recalcMode = state.recalcMode ?? 'keep_payment';
-      const maxMeses = clamp(Number(state.maxMeses ?? 240), 1, 600);
+function hydrateInputs() {
+  dom.capital.value = fromCents(state.capitalCents).toFixed(2);
+  dom.taxa.value = Number(state.taxaPctAm ?? 0);
+  dom.prazo.value = Number(state.prazoMeses ?? 12);
+  dom.dataInicio.value = state.dataInicio ?? '';
+  dom.sistema.value = state.sistema ?? 'price';
+  dom.recalcMode.value = state.recalcMode ?? 'keep_payment';
+  dom.maxMeses.value = Number(state.maxMeses ?? 240);
 
-      let saldo = capital;
-      let jurosEmAberto = 0;
+  dom.multaPct.value = (state.multaPct === null || state.multaPct === '') ? '' : String(state.multaPct);
+  dom.jurosMoraPctAm.value = (state.jurosMoraPctAm === null || state.jurosMoraPctAm === '') ? '' : String(state.jurosMoraPctAm);
+  dom.carenciaDias.value = (state.carenciaDias === null || state.carenciaDias === '') ? '' : String(state.carenciaDias);
 
-      const rows = [];
+  dom.clienteNome.value = state.clienteNome ?? '';
+  dom.clientePhone.value = state.clientePhone ?? '';
+  dom.assinatura.value = state.assinatura ?? '';
+}
 
-      const amortSAC = sistema === 'sac' ? Math.floor(capital / prazoOriginal) : 0;
+function readInputsToState() {
+  state.capitalCents = clamp(toCents(dom.capital.value), 0, 9_999_999_999_99);
+  state.taxaPctAm = clamp(Number(dom.taxa.value) || 0, 0, 1000);
+  state.prazoMeses = clamp(Math.trunc(Number(dom.prazo.value) || 1), 1, 600);
+  state.dataInicio = dom.dataInicio.value;
+  state.sistema = (dom.sistema.value === 'sac') ? 'sac' : 'price';
+  state.recalcMode = (dom.recalcMode.value === 'keep_term' || dom.recalcMode.value === 'none') ? dom.recalcMode.value : 'keep_payment';
+  state.maxMeses = clamp(Math.trunc(Number(dom.maxMeses.value) || 240), 1, 600);
 
-      let pmtAtual = sistema === 'price'
-        ? pmtPriceCents(capital, taxaMensal, prazoOriginal)
-        : 0;
+  const mp = String(dom.multaPct.value ?? '').trim();
+  const jm = String(dom.jurosMoraPctAm.value ?? '').trim();
+  const cd = String(dom.carenciaDias.value ?? '').trim();
+  state.multaPct = mp === '' ? null : clamp(Number(mp) || 0, 0, 100);
+  state.jurosMoraPctAm = jm === '' ? null : clamp(Number(jm) || 0, 0, 1000);
+  state.carenciaDias = cd === '' ? null : clamp(Math.trunc(Number(cd) || 0), 0, 365);
 
-      let jurosTotal = 0;
-      let extraTotal = 0;
+  state.clienteNome = String(dom.clienteNome.value ?? '').trim();
+  state.clientePhone = String(dom.clientePhone.value ?? '').trim().replace(/\D/g, '');
+  state.assinatura = String(dom.assinatura.value ?? '').trim();
 
-      const limite = (sistema === 'price' && recalcMode === 'keep_payment')
-        ? maxMeses
-        : prazoOriginal;
+  const d = parseLocalDate(state.dataInicio);
+  if (!d) showWarn('Informe uma data válida para o 1º pagamento.');
+  else showWarn('');
+}
 
-      for (let mes = 1; mes <= limite; mes++) {
-        if (saldo <= 0 && jurosEmAberto <= 0) break;
+function buildWhatsMessage({ scheduleRows, parcelaBaseCents }) {
+  const nome = state.clienteNome || 'Cliente';
+  const cap = fmt(state.capitalCents);
+  const taxa = `${Number(state.taxaPctAm || 0).toFixed(2)}% a.m.`;
+  const prazo = `${state.prazoMeses} meses`;
+  const sistema = state.sistema.toUpperCase();
+  const recalc = state.recalcMode === 'keep_payment' ? 'Parcela fixa (prazo ajustável)' :
+                 state.recalcMode === 'keep_term' ? 'Prazo fixo (parcela ajustável)' : 'Sem recálculo';
 
-        const jurosCorrente = Math.round((saldo / 100) * taxaMensal * 100);
-        jurosTotal += jurosCorrente;
+  const start = parseLocalDate(state.dataInicio);
+  const primeiroVenc = start ? start.toLocaleDateString('pt-BR') : '-';
 
-        const extra = clamp(state.extraCents[String(mes)] ?? 0, 0, 1_000_000_000_00);
-        extraTotal += extra;
-
-        // Parcela base (antes de manual)
-        let parcelaBase;
-        if (sistema === 'price') {
-          parcelaBase = pmtAtual;
-        } else {
-          // SAC: parcela = jurosCorrente + amort (amort pode ser 0 se já quitou principal, mas ainda tem juros em aberto)
-          const amortPlano = (mes === prazoOriginal) ? saldo : Math.min(amortSAC, saldo);
-          parcelaBase = jurosCorrente + amortPlano;
-        }
-
-        const manual = state.parcelaManualCents[String(mes)];
-        const parcela = (manual !== undefined)
-          ? clamp(manual, 0, 1_000_000_000_00)
-          : parcelaBase;
-
-        // Total "pretendido pagar" neste mês (parcela + extra).
-        // Cap de segurança: não pagar mais do que principal+jurosDevidos
-        const jurosDevido = jurosCorrente + jurosEmAberto;
-
-        let totalPago = parcela + extra;
-        const maxTotal = saldo + jurosDevido;
-        if (totalPago > maxTotal) totalPago = maxTotal;
-
-        // Juros primeiro
-        const jurosPago = Math.min(totalPago, jurosDevido);
-        const amortizacao = Math.max(0, totalPago - jurosPago);
-
-        const saldoFinal = Math.max(0, saldo - amortizacao);
-        const jurosEmAbertoNext = Math.max(0, jurosDevido - jurosPago);
-
-        rows.push({
-          mes,
-          jurosCorrente,
-          jurosEmAbertoPrev: jurosEmAberto,
-          jurosDevido,
-          jurosPago,
-          jurosEmAbertoNext,
-
-          parcelaBase,
-          parcela,
-          extra,
-          totalPago,
-
-          amortizacao,
-          saldoInicial: saldo,
-          saldoFinal,
-          manual: manual !== undefined
-        });
-
-        saldo = saldoFinal;
-        jurosEmAberto = jurosEmAbertoNext;
-
-        // Recalculo PRICE
-        if (sistema === 'price' && recalcMode !== 'none') {
-          const houveEdicao = (manual !== undefined) || extra > 0;
-
-          if (houveEdicao) {
-            if (recalcMode === 'keep_term') {
-              const restantes = Math.max(1, prazoOriginal - mes);
-              // Recalcula PMT sobre o saldo (principal) — juros em aberto continuará sendo cobrado antes da amortização
-              pmtAtual = pmtPriceCents(saldo, taxaMensal, restantes);
-            } else if (recalcMode === 'keep_payment') {
-              // mantém pmtAtual, prazo pode estender até quitar
-            }
-          }
-        }
-      }
-
-      return {
-        rows,
-        jurosTotal,
-        extraTotal,
-        pmtBase: pmtAtual,
-        taxaMensal,
-        prazoOriginal
-      };
-    }
-
-    /***********************
-     * DOM
-     ***********************/
-    const el = (id) => document.getElementById(id);
-
-    const dom = {
-      capital: el('capital'),
-      taxa: el('taxa'),
-      prazo: el('prazo'),
-      dataInicio: el('dataInicio'),
-      sistema: el('sistema'),
-      recalcMode: el('recalcMode'),
-      multaPct: el('multaPct'),
-      jurosMoraPctAm: el('jurosMoraPctAm'),
-      carenciaDias: el('carenciaDias'),
-      maxMeses: el('maxMeses'),
-      warn: el('warn'),
-
-      tabelaCorpo: el('tabelaCorpo'),
-      parcelaInfo: el('parcelaInfo'),
-      extrasInfo: el('extrasInfo'),
-      atrasoInfo: el('atrasoInfo'),
-
-      kpiJuros: el('kpiJuros'),
-      kpiRecebido: el('kpiRecebido'),
-      kpiSaldo: el('kpiSaldo'),
-      kpiProgresso: el('kpiProgresso'),
-      kpiRestante: el('kpiRestante'),
-      kpiBar: el('kpiBar'),
-      kpiSistema: el('kpiSistema'),
-      kpiPagas: el('kpiPagas'),
-      kpiJurosAberto: el('kpiJurosAberto'),
-
-      btnReset: el('btnReset'),
-      btnPrint: el('btnPrint'),
-      btnExportCSV: el('btnExportCSV'),
-      btnExportJSON: el('btnExportJSON'),
-      fileImportJSON: el('fileImportJSON'),
-      btnWhats: el('btnWhats'),
-    };
-
-    function showWarn(msg) {
-      if (!msg) {
-        dom.warn.classList.add('hidden');
-        dom.warn.textContent = '';
-        return;
-      }
-      dom.warn.classList.remove('hidden');
-      dom.warn.textContent = `⚠️ ${msg}`;
-    }
-
-    function hydrateInputs() {
-      dom.capital.value = fromCents(state.capitalCents).toFixed(2);
-      dom.taxa.value = Number(state.taxaPctAm ?? 0);
-      dom.prazo.value = Number(state.prazoMeses ?? 12);
-      dom.dataInicio.value = state.dataInicio ?? '';
-      dom.sistema.value = state.sistema ?? 'price';
-      dom.recalcMode.value = state.recalcMode ?? 'keep_payment';
-      dom.maxMeses.value = Number(state.maxMeses ?? 240);
-
-      // Multas opcionais: se null -> deixa vazio
-      dom.multaPct.value = (state.multaPct === null || state.multaPct === '') ? '' : String(state.multaPct);
-      dom.jurosMoraPctAm.value = (state.jurosMoraPctAm === null || state.jurosMoraPctAm === '') ? '' : String(state.jurosMoraPctAm);
-      dom.carenciaDias.value = (state.carenciaDias === null || state.carenciaDias === '') ? '' : String(state.carenciaDias);
-    }
-
-    function readInputsToState() {
-      state.capitalCents = clamp(toCents(dom.capital.value), 0, 9_999_999_999_99);
-      state.taxaPctAm = clamp(Number(dom.taxa.value) || 0, 0, 1000);
-      state.prazoMeses = clamp(Math.trunc(Number(dom.prazo.value) || 1), 1, 600);
-      state.dataInicio = dom.dataInicio.value;
-      state.sistema = (dom.sistema.value === 'sac') ? 'sac' : 'price';
-      state.recalcMode = (dom.recalcMode.value === 'keep_term' || dom.recalcMode.value === 'none') ? dom.recalcMode.value : 'keep_payment';
-      state.maxMeses = clamp(Math.trunc(Number(dom.maxMeses.value) || 240), 1, 600);
-
-      // Opcionais: se vazio => null
-      const mp = String(dom.multaPct.value ?? '').trim();
-      const jm = String(dom.jurosMoraPctAm.value ?? '').trim();
-      const cd = String(dom.carenciaDias.value ?? '').trim();
-
-      state.multaPct = mp === '' ? null : clamp(Number(mp) || 0, 0, 100);
-      state.jurosMoraPctAm = jm === '' ? null : clamp(Number(jm) || 0, 0, 1000);
-      state.carenciaDias = cd === '' ? null : clamp(Math.trunc(Number(cd) || 0), 0, 365);
-
-      const d = parseLocalDate(state.dataInicio);
-      if (!d) showWarn('Informe uma data válida para o 1º pagamento.');
-      else showWarn('');
-    }
-
-    function todayISO() {
-      const now = new Date();
-      const yyyy = now.getFullYear();
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const dd = String(now.getDate()).padStart(2, '0');
-      return `${yyyy}-${mm}-${dd}`;
-    }
-
-    function render() {
-      readInputsToState();
-      saveState();
-
-      const { rows, jurosTotal, extraTotal, pmtBase, prazoOriginal } = buildSchedule();
-
-      const start = parseLocalDate(state.dataInicio);
-      if (!start) {
-        dom.tabelaCorpo.innerHTML = '';
-        dom.parcelaInfo.textContent = 'Defina o 1º pagamento';
-        dom.extrasInfo.textContent = '';
-        dom.atrasoInfo.classList.add('hidden');
-        dom.kpiSistema.textContent = `SISTEMA: ${state.sistema.toUpperCase()}`;
-
-        dom.kpiJuros.textContent = fmt(0);
-        dom.kpiRecebido.textContent = fmt(0);
-        dom.kpiSaldo.textContent = fmt(state.capitalCents);
-        dom.kpiJurosAberto.textContent = fmt(0);
-
-        dom.kpiProgresso.textContent = '0%';
-        dom.kpiRestante.textContent = `${fmt(state.capitalCents)} restantes`;
-        dom.kpiBar.style.width = '0%';
-        dom.kpiPagas.textContent = `0/0 parcelas`;
-        return;
-      }
-
-      dom.kpiSistema.textContent = `SISTEMA: ${state.sistema.toUpperCase()} | RECÁLCULO: ${state.recalcMode.replace('_', ' ').toUpperCase()}`;
-
-      if (state.sistema === 'price') {
-        dom.parcelaInfo.textContent = `PARCELA BASE: ${fmt(pmtBase)} (${prazoOriginal}m)`;
-      } else {
-        dom.parcelaInfo.textContent = `SAC: amortização fixa (${prazoOriginal}m)`;
-      }
-      dom.extrasInfo.textContent = `EXTRAS: ${fmt(extraTotal)}`;
-
-      // Table HTML
-      const htmlRows = [];
-
-      let totalDevidoProjetado = 0;     // soma do totalPago projetado (parcela+extra capado)
-      let totalRecebido = 0;            // soma de pagamentos marcados
-      let encargosRecebidos = 0;        // multas/mora (se configuradas e pago em atraso)
-      let pagas = 0;
-
-      // KPIs de "hoje"
-      let saldoHoje = state.capitalCents;
-      let jurosAbertoHoje = 0;
-
-      const penaltiesEnabled = hasAnyPenaltyConfig();
-      let atrasosCount = 0;
-
-      for (const r of rows) {
-        const mesKey = String(r.mes);
+  // Próxima parcela não paga (para mensagem)
+  let proxima = null;
+  if (start) {
+    for (const r of scheduleRows) {
+      const k = String(r.mes);
+      if (!state.statusPago[k]) {
         const vencDate = addMonths(start, r.mes - 1);
-        const venc = vencDate.toLocaleDateString('pt-BR');
-
-        const paid = !!state.statusPago[mesKey];
-
-        // Projetado total devido (sem multas)
-        totalDevidoProjetado += r.totalPago;
-
-        // Atualiza "hoje" até a primeira parcela não paga (sequencial)
-        if (paid) {
-          saldoHoje = r.saldoFinal;
-          jurosAbertoHoje = r.jurosEmAbertoNext;
-        }
-
-        // Recebidos
-        if (paid) {
-          totalRecebido += r.totalPago;
-          pagas++;
-
-          if (penaltiesEnabled) {
-            const paidAtStr = state.paidAt[mesKey];
-            const paidAt = paidAtStr ? parseLocalDate(paidAtStr) : null;
-
-            if (paidAt) {
-              const { diasAtraso, encargos } = calcEncargosAtraso(r.totalPago, vencDate, paidAt);
-              if (diasAtraso > 0) atrasosCount++;
-              encargosRecebidos += encargos;
-            }
-          }
-        }
-
-        const manualClass = r.manual ? 'border-indigo-400 bg-indigo-50' : 'border-slate-100 bg-white';
-        const extraVal = (state.extraCents[mesKey] ?? 0);
-        const paidAtVal = state.paidAt[mesKey] ?? '';
-
-        // Destaque quando pagamento < juros devido (não amortiza)
-        const semAmort = (r.amortizacao === 0 && r.totalPago > 0 && r.jurosPago === r.totalPago);
-        const badgeAmort = semAmort
-          ? `<span class="inline-flex text-[9px] font-bold px-2 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-100">pagou só juros</span>`
-          : '';
-
-        htmlRows.push(`
-          <tr class="${paid ? 'bg-emerald-50/50' : ''} transition-all">
-            <td class="p-4">
-              <span class="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">${r.mes}ª PARCELA</span><br>
-              <span class="font-bold text-slate-700 text-xs">${venc}</span>
-              <div class="mt-2">${badgeAmort}</div>
-            </td>
-
-            <td class="p-4 text-center">
-              <input
-                data-role="parcela"
-                data-mes="${r.mes}"
-                type="number"
-                min="0"
-                step="0.01"
-                value="${fromCents(r.parcela).toFixed(2)}"
-                class="w-28 text-center border-2 ${manualClass} rounded-lg p-2 font-bold text-indigo-600 outline-none focus:border-indigo-500"
-              />
-              <div class="text-[9px] text-slate-400 mt-1">
-                base: ${fmt(r.parcelaBase)}
-              </div>
-            </td>
-
-            <td class="p-4 text-center">
-              <input
-                data-role="extra"
-                data-mes="${r.mes}"
-                type="number"
-                min="0"
-                step="0.01"
-                value="${fromCents(extraVal).toFixed(2)}"
-                class="w-24 text-center border-2 border-emerald-100 bg-white rounded-lg p-2 font-bold text-emerald-700 outline-none focus:border-emerald-300"
-              />
-              <div class="text-[9px] text-slate-400 mt-1">
-                amortiza principal
-              </div>
-            </td>
-
-            <td class="p-4 text-right">
-              <span class="text-[9px] text-slate-400 font-medium">Juros (corr): ${fmt(r.jurosCorrente)}</span><br>
-              <span class="text-[9px] text-slate-400 font-medium">Juros em aberto: ${fmt(r.jurosEmAbertoPrev)}</span><br>
-              <span class="text-[9px] text-slate-400 font-medium">Juros devido: ${fmt(r.jurosDevido)}</span><br>
-              <span class="text-[9px] text-slate-400 font-medium">Pago em juros: ${fmt(r.jurosPago)}</span><br>
-              <span class="text-[9px] text-slate-400 font-medium">Amort: ${fmt(r.amortizacao)}</span><br>
-              <span class="font-bold text-slate-900 text-sm">Saldo: ${fmt(r.saldoFinal)}</span>
-            </td>
-
-            <td class="p-4 text-center no-print">
-              <input data-role="pago" data-mes="${r.mes}" type="checkbox" ${paid ? 'checked' : ''}
-                class="w-5 h-5 accent-emerald-500 rounded cursor-pointer">
-
-              <div class="mt-2 ${paid ? '' : 'hidden'}" data-paidwrap="${r.mes}">
-                <div class="text-[9px] text-slate-400 font-bold mb-1">Pago em</div>
-                <input data-role="paidAt" data-mes="${r.mes}" type="date"
-                  value="${paidAtVal}"
-                  class="text-[10px] p-2 border border-slate-200 rounded-lg bg-white font-bold">
-              </div>
-            </td>
-          </tr>
-        `);
+        proxima = {
+          mes: r.mes,
+          venc: vencDate.toLocaleDateString('pt-BR'),
+          valor: fmt(r.totalPago)
+        };
+        break;
       }
+    }
+  }
 
-      dom.tabelaCorpo.innerHTML = htmlRows.join('');
+  const parcelaBaseTxt = fmt(parcelaBaseCents);
+  const assinatura = state.assinatura ? `\n\n${state.assinatura}` : '';
 
-      // Info de atraso
+  const linhas = [];
+  linhas.push(`Olá, ${nome}! 👋`);
+  linhas.push(`Segue o resumo do seu empréstimo:`);
+  linhas.push('');
+  linhas.push(`💰 *Valor do empréstimo:* ${cap}`);
+  linhas.push(`📈 *Taxa:* ${taxa}`);
+  linhas.push(`🧾 *Sistema:* ${sistema}`);
+  linhas.push(`🗓️ *Prazo:* ${prazo}`);
+  linhas.push(`📅 *1º vencimento:* ${primeiroVenc}`);
+  linhas.push(`🔁 *Regra:* ${recalc}`);
+  linhas.push(`💳 *Parcela base:* ${parcelaBaseTxt}`);
+  if (proxima) {
+    linhas.push('');
+    linhas.push(`✅ *Próxima parcela:* ${proxima.mes}ª — ${proxima.venc} — ${proxima.valor}`);
+  }
+  linhas.push('');
+  linhas.push(`Se quiser, me diga o melhor dia de pagamento e eu ajusto o cronograma.`);
+  return linhas.join('\n') + assinatura;
+}
+
+function updateWhatsPreview(schedule, parcelaBaseCents) {
+  const msg = buildWhatsMessage({ scheduleRows: schedule.rows, parcelaBaseCents });
+  dom.whatsPreview.value = msg;
+  dom.btnWhatsSend.dataset.msg = msg;
+  dom.btnWhatsSendMobile.dataset.msg = msg;
+}
+
+/***********************
+ * Render
+ ***********************/
+function render() {
+  readInputsToState();
+  saveState();
+
+  const schedule = buildSchedule();
+  const start = parseLocalDate(state.dataInicio);
+
+  dom.kpiSistema.textContent = `SISTEMA: ${state.sistema.toUpperCase()} • ${state.recalcMode.replace('_',' ')}`;
+
+  if (!start) {
+    dom.tabelaCorpo.innerHTML = '';
+    dom.cardsMobile.innerHTML = '';
+    dom.parcelaInfo.textContent = 'Defina o 1º pagamento';
+    dom.extrasInfo.textContent = '';
+    dom.atrasoInfo.classList.add('hidden');
+
+    dom.kpiJuros.textContent = fmt(0);
+    dom.kpiRecebido.textContent = fmt(0);
+    dom.kpiSaldo.textContent = fmt(state.capitalCents);
+    dom.kpiJurosAberto.textContent = fmt(0);
+    dom.kpiProgresso.textContent = '0%';
+    dom.kpiRestante.textContent = `${fmt(state.capitalCents)} restantes`;
+    dom.kpiBar.style.width = '0%';
+    dom.kpiPagas.textContent = `0/0`;
+
+    updateWhatsPreview(schedule, schedule.pmtBase || 0);
+    return;
+  }
+
+  dom.parcelaInfo.textContent = (state.sistema === 'price')
+    ? `PARCELA BASE: ${fmt(schedule.pmtBase)}`
+    : `SAC: amortização fixa`;
+
+  dom.extrasInfo.textContent = `EXTRAS: ${fmt(schedule.extraTotal)}`;
+
+  const penaltiesEnabled = hasAnyPenaltyConfig();
+  dom.atrasoInfo.classList.toggle('hidden', !penaltiesEnabled);
+  if (penaltiesEnabled) dom.atrasoInfo.textContent = `ENCARGOS (multa/mora) ativos`;
+
+  // KPIs calc
+  let totalDevidoProjetado = 0;
+  let totalRecebido = 0;
+  let encargosRecebidos = 0;
+  let pagas = 0;
+
+  let saldoHoje = state.capitalCents;
+  let jurosAbertoHoje = 0;
+
+  const htmlRows = [];
+  const cards = [];
+
+  for (const r of schedule.rows) {
+    const mesKey = String(r.mes);
+    const vencDate = addMonths(start, r.mes - 1);
+    const venc = vencDate.toLocaleDateString('pt-BR');
+    const paid = !!state.statusPago[mesKey];
+
+    totalDevidoProjetado += r.totalPago;
+
+    if (paid) {
+      saldoHoje = r.saldoFinal;
+      jurosAbertoHoje = r.jurosEmAbertoNext;
+      totalRecebido += r.totalPago;
+      pagas++;
+
       if (penaltiesEnabled) {
-        dom.atrasoInfo.classList.remove('hidden');
-        dom.atrasoInfo.textContent = `ENCARGOS (multa/mora) ATIVOS • Atrasos detectados: ${atrasosCount}`;
-      } else {
-        dom.atrasoInfo.classList.add('hidden');
+        const paidAtStr = state.paidAt[mesKey];
+        const paidAt = paidAtStr ? parseLocalDate(paidAtStr) : null;
+        if (paidAt) {
+          const { encargos } = calcEncargosAtraso(r.totalPago, vencDate, paidAt);
+          encargosRecebidos += encargos;
+        }
       }
-
-      // KPIs
-      dom.kpiJuros.textContent = fmt(jurosTotal);
-      dom.kpiSaldo.textContent = fmt(saldoHoje);
-      dom.kpiJurosAberto.textContent = fmt(jurosAbertoHoje);
-
-      // total recebido inclui encargos (se configurado)
-      dom.kpiRecebido.textContent = fmt(totalRecebido + encargosRecebidos);
-      dom.kpiPagas.textContent = `${pagas}/${rows.length} parcelas`;
-
-      // Progresso: usa "devido projetado" (sem multas) + juros em aberto final (porque ainda falta pagar)
-      const jurosAbertoFinal = rows.length ? rows[rows.length - 1].jurosEmAbertoNext : 0;
-      const totalDevidoAjustado = totalDevidoProjetado + jurosAbertoFinal;
-
-      const perc = totalDevidoAjustado > 0 ? ((totalRecebido) / totalDevidoAjustado) * 100 : 0;
-      dom.kpiBar.style.width = `${clamp(perc, 0, 100)}%`;
-      dom.kpiProgresso.textContent = `${Math.round(perc)}%`;
-      dom.kpiRestante.textContent = `${fmt(Math.max(0, totalDevidoAjustado - totalRecebido))} restantes`;
-
-      // Aviso se estendeu
-      if (state.sistema === 'price' && state.recalcMode === 'keep_payment' && rows.length > state.prazoMeses) {
-        showWarn(`Prazo estendido para ${rows.length} meses (manter parcela).`);
-      } else {
-        // mantém warnings de data
-        const d = parseLocalDate(state.dataInicio);
-        if (d) showWarn('');
-      }
-
-      // Whats summary
-      dom.btnWhats.dataset.prog = `${Math.round(perc)}%`;
-      dom.btnWhats.dataset.rest = `${fmt(Math.max(0, totalDevidoAjustado - totalRecebido))}`;
-      dom.btnWhats.dataset.ja = `${fmt(jurosAbertoHoje)}`;
     }
 
-    const renderDebounced = debounce(render, 250);
+    const extraVal = (state.extraCents[mesKey] ?? 0);
+    const paidAtVal = state.paidAt[mesKey] ?? '';
 
-    /***********************
-     * Events
-     ***********************/
-    ['input', 'change'].forEach(evt => {
-      dom.capital.addEventListener(evt, renderDebounced);
-      dom.taxa.addEventListener(evt, renderDebounced);
-      dom.prazo.addEventListener(evt, renderDebounced);
-      dom.dataInicio.addEventListener(evt, renderDebounced);
-      dom.sistema.addEventListener(evt, renderDebounced);
-      dom.recalcMode.addEventListener(evt, renderDebounced);
-      dom.multaPct.addEventListener(evt, renderDebounced);
-      dom.jurosMoraPctAm.addEventListener(evt, renderDebounced);
-      dom.carenciaDias.addEventListener(evt, renderDebounced);
-      dom.maxMeses.addEventListener(evt, renderDebounced);
-    });
+    // Desktop row
+    htmlRows.push(`
+      <tr class="${paid ? 'bg-emerald-50/50' : ''}">
+        <td class="p-4">
+          <span class="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">${r.mes}ª PARCELA</span><br>
+          <span class="font-bold text-slate-700 text-xs">${venc}</span>
+        </td>
+        <td class="p-4 text-center">
+          <input data-role="parcela" data-mes="${r.mes}" type="number" min="0" step="0.01"
+            value="${fromCents(r.parcela).toFixed(2)}"
+            class="w-28 text-center border-2 ${r.manual ? 'border-indigo-400 bg-indigo-50' : 'border-slate-100 bg-white'} rounded-lg p-2 font-bold text-indigo-600 outline-none focus:border-indigo-500" />
+          <div class="text-[9px] text-slate-400 mt-1">base: ${fmt(r.parcelaBase)}</div>
+        </td>
+        <td class="p-4 text-center">
+          <input data-role="extra" data-mes="${r.mes}" type="number" min="0" step="0.01"
+            value="${fromCents(extraVal).toFixed(2)}"
+            class="w-24 text-center border-2 border-emerald-100 bg-white rounded-lg p-2 font-bold text-emerald-700 outline-none focus:border-emerald-300" />
+        </td>
+        <td class="p-4 text-right">
+          <span class="text-[9px] text-slate-400 font-medium">Juros devido: ${fmt(r.jurosDevido)}</span><br>
+          <span class="text-[9px] text-slate-400 font-medium">Pago em juros: ${fmt(r.jurosPago)}</span><br>
+          <span class="text-[9px] text-slate-400 font-medium">Amort: ${fmt(r.amortizacao)}</span><br>
+          <span class="font-bold text-slate-900 text-sm">Saldo: ${fmt(r.saldoFinal)}</span>
+        </td>
+        <td class="p-4 text-center no-print">
+          <input data-role="pago" data-mes="${r.mes}" type="checkbox" ${paid ? 'checked' : ''}
+            class="w-5 h-5 accent-emerald-500 rounded cursor-pointer">
+          <div class="mt-2 ${paid ? '' : 'hidden'}" data-paidwrap="${r.mes}">
+            <div class="text-[9px] text-slate-400 font-bold mb-1">Pago em</div>
+            <input data-role="paidAt" data-mes="${r.mes}" type="date"
+              value="${paidAtVal}"
+              class="text-[10px] p-2 border border-slate-200 rounded-lg bg-white font-bold">
+          </div>
+        </td>
+      </tr>
+    `);
 
-    dom.tabelaCorpo.addEventListener('change', (e) => {
-      const t = e.target;
-      const role = t.getAttribute('data-role');
-      const mes = t.getAttribute('data-mes');
-      if (!role || !mes) return;
+    // Mobile card
+    cards.push(`
+      <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm ${paid ? 'ring-2 ring-emerald-200 bg-emerald-50/30' : ''}">
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <div class="text-[10px] font-bold text-slate-400 uppercase">${r.mes}ª parcela</div>
+            <div class="font-bold text-slate-900">${venc}</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] text-slate-400 font-bold uppercase">Total</div>
+            <div class="font-extrabold text-slate-900">${fmt(r.totalPago)}</div>
+          </div>
+        </div>
 
-      if (role === 'pago') {
-        state.statusPago[mes] = !!t.checked;
+        <div class="mt-3 grid grid-cols-2 gap-2">
+          <div class="bg-slate-50 rounded-xl p-3">
+            <div class="text-[10px] text-slate-400 font-bold uppercase">Parcela</div>
+            <input data-role="parcela" data-mes="${r.mes}" type="number" min="0" step="0.01"
+              value="${fromCents(r.parcela).toFixed(2)}"
+              class="mt-2 w-full text-center border-2 ${r.manual ? 'border-indigo-400 bg-indigo-50' : 'border-slate-200 bg-white'} rounded-lg p-3 font-bold text-indigo-700 outline-none">
+            <div class="text-[10px] text-slate-400 mt-1">base: ${fmt(r.parcelaBase)}</div>
+          </div>
 
-        // default paidAt = hoje se marcou pago e não tinha data
-        if (state.statusPago[mes] && !state.paidAt[mes]) {
-          state.paidAt[mes] = todayISO();
-        }
-        if (!state.statusPago[mes]) {
-          delete state.paidAt[mes];
-        }
+          <div class="bg-slate-50 rounded-xl p-3">
+            <div class="text-[10px] text-slate-400 font-bold uppercase">Extra</div>
+            <input data-role="extra" data-mes="${r.mes}" type="number" min="0" step="0.01"
+              value="${fromCents(extraVal).toFixed(2)}"
+              class="mt-2 w-full text-center border-2 border-emerald-200 bg-white rounded-lg p-3 font-bold text-emerald-700 outline-none">
+            <div class="text-[10px] text-slate-400 mt-1">amortiza</div>
+          </div>
+        </div>
 
-        saveState();
-        render();
-        return;
-      }
+        <div class="mt-3 bg-white rounded-xl border border-slate-200 p-3">
+          <div class="flex justify-between text-[11px] font-semibold text-slate-700">
+            <span>Juros devido</span><span>${fmt(r.jurosDevido)}</span>
+          </div>
+          <div class="flex justify-between text-[11px] font-semibold text-slate-700 mt-1">
+            <span>Pago em juros</span><span>${fmt(r.jurosPago)}</span>
+          </div>
+          <div class="flex justify-between text-[11px] font-semibold text-slate-700 mt-1">
+            <span>Amortização</span><span>${fmt(r.amortizacao)}</span>
+          </div>
+          <div class="flex justify-between text-[11px] font-extrabold text-slate-900 mt-2">
+            <span>Saldo</span><span>${fmt(r.saldoFinal)}</span>
+          </div>
+        </div>
 
-      if (role === 'paidAt') {
-        const v = String(t.value ?? '').trim();
-        if (!v) delete state.paidAt[mes];
-        else state.paidAt[mes] = v;
-        saveState();
-        render();
-        return;
-      }
+        <div class="mt-3 flex items-center justify-between">
+          <label class="flex items-center gap-2 font-bold text-slate-700">
+            <input data-role="pago" data-mes="${r.mes}" type="checkbox" ${paid ? 'checked' : ''}
+              class="w-5 h-5 accent-emerald-500 rounded cursor-pointer">
+            Pago
+          </label>
 
-      if (role === 'parcela') {
-        const cents = toCents(t.value);
-        // se zerar/apagar, remove override
-        if (!String(t.value ?? '').trim() || cents <= 0) delete state.parcelaManualCents[mes];
-        else state.parcelaManualCents[mes] = cents;
-        saveState();
-        render();
-        return;
-      }
+          <div class="${paid ? '' : 'hidden'}" data-paidwrap="${r.mes}">
+            <input data-role="paidAt" data-mes="${r.mes}" type="date"
+              value="${paidAtVal}"
+              class="text-[11px] p-2 border border-slate-200 rounded-lg bg-white font-bold">
+          </div>
+        </div>
+      </div>
+    `);
+  }
 
-      if (role === 'extra') {
-        const cents = toCents(t.value);
-        if (!String(t.value ?? '').trim() || cents <= 0) delete state.extraCents[mes];
-        else state.extraCents[mes] = cents;
-        saveState();
-        render();
-        return;
-      }
-    });
+  dom.tabelaCorpo.innerHTML = htmlRows.join('');
+  dom.cardsMobile.innerHTML = cards.join('');
 
-    dom.btnReset.addEventListener('click', () => {
-      if (!confirm('Deseja resetar todos os dados?')) return;
-      localStorage.removeItem(STORAGE_KEY);
-      state = loadState();
-      hydrateInputs();
-      render();
-    });
+  dom.kpiJuros.textContent = fmt(schedule.jurosTotal);
+  dom.kpiSaldo.textContent = fmt(saldoHoje);
+  dom.kpiJurosAberto.textContent = fmt(jurosAbertoHoje);
 
-    dom.btnPrint.addEventListener('click', () => window.print());
+  dom.kpiRecebido.textContent = fmt(totalRecebido + encargosRecebidos);
+  dom.kpiPagas.textContent = `${pagas}/${schedule.rows.length}`;
 
-    dom.btnExportCSV.addEventListener('click', () => {
-      const { rows } = buildSchedule();
-      const start = parseLocalDate(state.dataInicio);
-      if (!start) return alert('Defina uma data de início válida.');
+  const jurosAbertoFinal = schedule.rows.length ? schedule.rows[schedule.rows.length - 1].jurosEmAbertoNext : 0;
+  const totalDevidoAjustado = totalDevidoProjetado + jurosAbertoFinal;
+  const perc = totalDevidoAjustado > 0 ? (totalRecebido / totalDevidoAjustado) * 100 : 0;
 
-      const header = [
-        'Mes','Vencimento','Parcela','Extra','TotalPago',
-        'JurosCorrente','JurosAbertoPrev','JurosDevido','JurosPago','JurosAbertoNext',
-        'Amortizacao','SaldoFinal','Pago','PagoEm'
-      ];
-      const lines = [header.join(';')];
+  dom.kpiBar.style.width = `${clamp(perc, 0, 100)}%`;
+  dom.kpiProgresso.textContent = `${Math.round(perc)}%`;
+  dom.kpiRestante.textContent = `${fmt(Math.max(0, totalDevidoAjustado - totalRecebido))} restantes`;
 
-      for (const r of rows) {
-        const venc = addMonths(start, r.mes - 1).toLocaleDateString('pt-BR');
-        const k = String(r.mes);
-        const paid = !!state.statusPago[k];
-        lines.push([
-          r.mes,
-          venc,
-          fromCents(r.parcela).toFixed(2),
-          fromCents(state.extraCents[k] ?? 0).toFixed(2),
-          fromCents(r.totalPago).toFixed(2),
+  if (state.sistema === 'price' && state.recalcMode === 'keep_payment' && schedule.rows.length > state.prazoMeses) {
+    showWarn(`Prazo estendido para ${schedule.rows.length} meses (manter parcela).`);
+  }
 
-          fromCents(r.jurosCorrente).toFixed(2),
-          fromCents(r.jurosEmAbertoPrev).toFixed(2),
-          fromCents(r.jurosDevido).toFixed(2),
-          fromCents(r.jurosPago).toFixed(2),
-          fromCents(r.jurosEmAbertoNext).toFixed(2),
+  updateWhatsPreview(schedule, schedule.pmtBase || 0);
+}
 
-          fromCents(r.amortizacao).toFixed(2),
-          fromCents(r.saldoFinal).toFixed(2),
-          paid ? 'SIM' : 'NAO',
-          state.paidAt[k] ?? ''
-        ].join(';'));
-      }
+const renderDebounced = debounce(render, 250);
 
-      const blob = new Blob(["\uFEFF" + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `smartloan_${new Date().toISOString().slice(0,10)}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    });
+/***********************
+ * Events
+ ***********************/
+['input', 'change'].forEach(evt => {
+  dom.capital.addEventListener(evt, renderDebounced);
+  dom.taxa.addEventListener(evt, renderDebounced);
+  dom.prazo.addEventListener(evt, renderDebounced);
+  dom.dataInicio.addEventListener(evt, renderDebounced);
+  dom.sistema.addEventListener(evt, renderDebounced);
+  dom.recalcMode.addEventListener(evt, renderDebounced);
+  dom.multaPct.addEventListener(evt, renderDebounced);
+  dom.jurosMoraPctAm.addEventListener(evt, renderDebounced);
+  dom.carenciaDias.addEventListener(evt, renderDebounced);
+  dom.maxMeses.addEventListener(evt, renderDebounced);
 
-    dom.btnExportJSON.addEventListener('click', () => {
-      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `smartloan_${new Date().toISOString().slice(0,10)}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    });
+  dom.clienteNome.addEventListener(evt, renderDebounced);
+  dom.clientePhone.addEventListener(evt, renderDebounced);
+  dom.assinatura.addEventListener(evt, renderDebounced);
+});
 
-    dom.fileImportJSON.addEventListener('change', async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      try {
-        const txt = await file.text();
-        const parsed = JSON.parse(txt);
+function handleTableChange(e) {
+  const t = e.target;
+  const role = t.getAttribute('data-role');
+  const mes = t.getAttribute('data-mes');
+  if (!role || !mes) return;
 
-        state = {
-          ...structuredClone(DEFAULT_STATE),
-          ...parsed,
-          statusPago: parsed.statusPago ?? {},
-          paidAt: parsed.paidAt ?? {},
-          parcelaManualCents: parsed.parcelaManualCents ?? {},
-          extraCents: parsed.extraCents ?? {},
-          version: '4.2'
-        };
+  if (role === 'pago') {
+    state.statusPago[mes] = !!t.checked;
+    if (state.statusPago[mes] && !state.paidAt[mes]) state.paidAt[mes] = todayISO();
+    if (!state.statusPago[mes]) delete state.paidAt[mes];
+    saveState(); render(); return;
+  }
 
-        saveState();
-        hydrateInputs();
-        render();
-        alert('Importação concluída ✅');
-      } catch (err) {
-        alert('JSON inválido. Não foi possível importar.');
-      } finally {
-        dom.fileImportJSON.value = '';
-      }
-    });
+  if (role === 'paidAt') {
+    const v = String(t.value ?? '').trim();
+    if (!v) delete state.paidAt[mes];
+    else state.paidAt[mes] = v;
+    saveState(); render(); return;
+  }
 
-    dom.btnWhats.addEventListener('click', () => {
-      const prog = dom.btnWhats.dataset.prog ?? '0%';
-      const rest = dom.btnWhats.dataset.rest ?? 'R$ 0,00';
-      const jurosAberto = dom.btnWhats.dataset.ja ?? 'R$ 0,00';
-      const multasAtivas = hasAnyPenaltyConfig() ? 'sim' : 'não';
+  if (role === 'parcela') {
+    const cents = toCents(t.value);
+    if (!String(t.value ?? '').trim() || cents <= 0) delete state.parcelaManualCents[mes];
+    else state.parcelaManualCents[mes] = cents;
+    saveState(); render(); return;
+  }
 
-      const texto =
-        `Resumo SmartLoan:\n` +
-        `📊 Quitado: ${prog}\n` +
-        `💰 Restante: ${rest}\n` +
-        `🧾 Sistema: ${state.sistema.toUpperCase()} | Recalcular: ${state.recalcMode}\n` +
-        `⚠️ Multas/Mora ativas: ${multasAtivas}\n` +
-        `🟠 Juros em aberto: ${jurosAberto}\n\n` +
-        `Cronograma gerado pelo SmartLoan.`;
+  if (role === 'extra') {
+    const cents = toCents(t.value);
+    if (!String(t.value ?? '').trim() || cents <= 0) delete state.extraCents[mes];
+    else state.extraCents[mes] = cents;
+    saveState(); render(); return;
+  }
+}
 
-      window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
-    });
+dom.tabelaCorpo.addEventListener('change', handleTableChange);
+dom.cardsMobile.addEventListener('change', handleTableChange);
 
-    /***********************
-     * Init
-     ***********************/
+dom.btnReset.addEventListener('click', () => {
+  if (!confirm('Deseja resetar todos os dados?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  state = loadState();
+  hydrateInputs();
+  render();
+});
+
+dom.btnPrint.addEventListener('click', () => window.print());
+dom.btnPrintDesktop.addEventListener('click', () => window.print());
+
+// Copy message
+dom.btnCopy.addEventListener('click', async () => {
+  const msg = dom.whatsPreview.value || '';
+  try {
+    await navigator.clipboard.writeText(msg);
+    dom.btnCopy.textContent = '✅ Copiado!';
+    setTimeout(() => dom.btnCopy.textContent = '📋 Copiar mensagem', 1200);
+  } catch {
+    alert('Não consegui copiar automaticamente. Selecione e copie manualmente.');
+  }
+});
+
+// Send WhatsApp
+function openWhatsApp() {
+  const msg = (dom.btnWhatsSend.dataset.msg || dom.whatsPreview.value || '').trim();
+  if (!msg) return;
+
+  // if phone present: use wa.me/<phone>
+  const phone = (state.clientePhone || '').replace(/\D/g, '');
+  const url = phone
+    ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`
+    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+
+  window.open(url, '_blank');
+}
+dom.btnWhatsSend.addEventListener('click', openWhatsApp);
+dom.btnWhatsSendMobile.addEventListener('click', openWhatsApp);
+
+// Export CSV
+dom.btnExportCSV.addEventListener('click', () => {
+  const schedule = buildSchedule();
+  const start = parseLocalDate(state.dataInicio);
+  if (!start) return alert('Defina uma data de início válida.');
+
+  const header = [
+    'Mes','Vencimento','Parcela','Extra','TotalPago',
+    'JurosCorrente','JurosAbertoPrev','JurosDevido','JurosPago','JurosAbertoNext',
+    'Amortizacao','SaldoFinal','Pago','PagoEm'
+  ];
+  const lines = [header.join(';')];
+
+  for (const r of schedule.rows) {
+    const venc = addMonths(start, r.mes - 1).toLocaleDateString('pt-BR');
+    const k = String(r.mes);
+    const paid = !!state.statusPago[k];
+    lines.push([
+      r.mes,
+      venc,
+      fromCents(r.parcela).toFixed(2),
+      fromCents(state.extraCents[k] ?? 0).toFixed(2),
+      fromCents(r.totalPago).toFixed(2),
+      fromCents(r.jurosCorrente).toFixed(2),
+      fromCents(r.jurosEmAbertoPrev).toFixed(2),
+      fromCents(r.jurosDevido).toFixed(2),
+      fromCents(r.jurosPago).toFixed(2),
+      fromCents(r.jurosEmAbertoNext).toFixed(2),
+      fromCents(r.amortizacao).toFixed(2),
+      fromCents(r.saldoFinal).toFixed(2),
+      paid ? 'SIM' : 'NAO',
+      state.paidAt[k] ?? ''
+    ].join(';'));
+  }
+
+  const blob = new Blob(["\uFEFF" + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `smartloan_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+});
+
+// Export JSON
+dom.btnExportJSON.addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `smartloan_${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+});
+
+// Import JSON
+dom.fileImportJSON.addEventListener('change', async (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  try {
+    const txt = await file.text();
+    const parsed = JSON.parse(txt);
+
+    state = {
+      ...structuredClone(DEFAULT_STATE),
+      ...parsed,
+      statusPago: parsed.statusPago ?? {},
+      paidAt: parsed.paidAt ?? {},
+      parcelaManualCents: parsed.parcelaManualCents ?? {},
+      extraCents: parsed.extraCents ?? {},
+      version: '4.3'
+    };
+
+    saveState();
     hydrateInputs();
     render();
-  </script>
+    alert('Importação concluída ✅');
+  } catch {
+    alert('JSON inválido. Não foi possível importar.');
+  } finally {
+    dom.fileImportJSON.value = '';
+  }
+});
+
+/***********************
+ * Init
+ ***********************/
+hydrateInputs();
+render();
+</script>
 </body>
 </html>
